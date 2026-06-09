@@ -521,7 +521,7 @@ Returns witness-voted chain properties (account creation fee, max block size, SB
 steem.api.getChainProperties((err, result) => console.log(result));
 ```
 
-**Returns:** `{ account_creation_fee, maximum_block_size, sbd_interest_rate }`.
+**Returns:** `{ account_creation_fee, account_subsidy_budget, account_subsidy_decay, maximum_block_size, sbd_interest_rate }`.
 
 === getFeedHistory
 Returns the current and historical median price feed used for SBD conversions.
@@ -541,7 +541,7 @@ Returns just the current median price feed (base/quote).
 steem.api.getCurrentMedianHistoryPrice((err, result) => console.log(result));
 ```
 
-**Returns:** `{ base: '3.889 SBD', quote: '1.000 STEEM' }`.
+**Returns:** a price object `{ base, quote }` of aggregate amounts, e.g. `{ base: '59379011.253 SBD', quote: '549521217.137 STEEM' }`.
 
 === getWitnessSchedule
 Returns the current witness scheduling object (shuffled witnesses, median props, weights).
@@ -680,7 +680,7 @@ Returns an account's operation history, newest-first, paged by sequence number. 
 steem.api.getAccountHistory('ned', -1, 100, (err, result) => console.log(result));
 ```
 
-**Returns:** an array of `[sequence, { trx_id, block, timestamp, op: [name, payload] }]` entries.
+**Returns:** an array of `[sequence, { block, trx_id, trx_in_block, op_in_trx, virtual_op, timestamp, op: [name, payload] }]` entries.
 
 === getOwnerHistory
 Returns recent owner-authority changes for an account (used during recovery).
@@ -749,7 +749,7 @@ steem.api.getWithdrawRoutes('ned', 1, (err, result) => console.log(result));
 **Returns:** an array of `{ from_account, to_account, percent, auto_vest }`.
 
 === getAccountBandwidth
-Returns an account's bandwidth usage. `bandwidthType` is 1 for forum (posting) and 2 for market (trading).
+Returns an account's bandwidth usage. `bandwidthType` is 1 for forum (posting) and 2 for market (trading). The bandwidth plugin is often disabled on public nodes (resource credits replaced it post-HF20 — see [findRcAccounts](#findrcaccounts)), so this may return an error.
 
 **Parameters**
 
@@ -959,7 +959,7 @@ Returns all votes cast on a post or comment.
 steem.api.getActiveVotes('ned', 'my-post', (err, result) => console.log(result));
 ```
 
-**Returns:** an array of `{ voter, weight, rshares, percent, time }`.
+**Returns:** an array of `{ voter, weight, rshares, percent, reputation, time }`.
 
 === getAccountVotes
 Returns all votes an account has ever cast.
@@ -1078,7 +1078,7 @@ Returns the witness owned by an account.
 steem.api.getWitnessByAccount('blocktrades', (err, result) => console.log(result));
 ```
 
-**Returns:** a witness object (`url`, `total_missed`, `votes`, `signing_key`, `props`, …) or `null`.
+**Returns:** a witness object (`owner`, `url`, `total_missed`, `votes`, `props`, `signing_key`, `running_version`, `sbd_exchange_rate`, …) or `null`.
 
 === getWitnessesByVote
 Returns witnesses ordered by vote weight, starting from a name.
@@ -1158,7 +1158,7 @@ Returns a named reward fund's current balance and parameters.
 steem.api.getRewardFund('post', (err, result) => console.log(result));
 ```
 
-**Returns:** `{ id, name, reward_balance, recent_claims, last_update, content_constant, percent_curation_rewards, author_reward_curve, curation_reward_curve }`.
+**Returns:** `{ id, name, reward_balance, recent_claims, last_update, content_constant, percent_content_rewards, percent_curation_rewards, author_reward_curve, curation_reward_curve }`.
 
 === getVestingDelegations
 Returns delegations made from an account, denominated in VESTS. Paginate with the last delegatee's name in `from`.
@@ -1270,7 +1270,7 @@ Returns accounts that follow `following`, alphabetically. Page forward using the
 steem.api.getFollowers('ned', '', 'blog', 10, (err, result) => console.log(result));
 ```
 
-**Returns:** an array of `{ follower, following, what: ['blog'] }`.
+**Returns:** an array of `{ follower, following, reputation, what: ['blog', ''] }`.
 
 === getFollowing
 Returns accounts that `follower` follows, alphabetically.
@@ -1289,7 +1289,7 @@ Returns accounts that `follower` follows, alphabetically.
 steem.api.getFollowing('dan', '', 'blog', 10, (err, result) => console.log(result));
 ```
 
-**Returns:** an array of `{ follower, following, what: ['blog'] }`.
+**Returns:** an array of `{ follower, following, reputation, what: ['blog', ''] }`.
 
 === getFollowCount
 Returns the follower and following totals for an account.
@@ -1359,7 +1359,7 @@ Returns an account's blog as lightweight entries (posts and resteems).
 steem.api.getBlogEntries('ned', 0, 10, (err, result) => console.log(result));
 ```
 
-**Returns:** an array of `{ author, permlink, blog, reblog_on, entry_id }`.
+**Returns:** an array of `{ author, blog, entry_id, permlink, reblogged_on }`.
 
 === getBlog
 Returns an account's blog as full discussion objects (posts and resteems).
@@ -1377,7 +1377,7 @@ Returns an account's blog as full discussion objects (posts and resteems).
 steem.api.getBlog('ned', 0, 10, (err, result) => console.log(result));
 ```
 
-**Returns:** an array of `{ comment, blog, reblog_on, entry_id }`.
+**Returns:** an array of `{ comment, blog, reblog_on, entry_id }` (`comment` is a full content object).
 
 === getAccountReputations
 Returns reputation scores for `limit` accounts whose names are closest to `lowerBoundName`.
@@ -1397,7 +1397,7 @@ steem.api.getAccountReputations('ned', 5, (err, result) => console.log(result));
 **Returns:** an array of `{ account, reputation }` (raw reputation; format with [formatter.reputation](../guide/formatter#reputation)).
 
 === getRebloggedBy
-Returns the accounts that reblogged (resteemed) a given post.
+Returns the accounts that reblogged (resteemed) a given post. Requires the follow plugin; not exposed on every public node.
 
 **Parameters**
 
@@ -1414,7 +1414,7 @@ steem.api.getRebloggedBy('ned', 'my-post', (err, result) => console.log(result))
 **Returns:** an array of account-name strings (includes the original author).
 
 === getBlogAuthors
-Returns everyone who has appeared in an account's blog, with how many times.
+Returns everyone who has appeared in an account's blog, with how many times. Requires the follow plugin; not exposed on every public node.
 
 **Parameters**
 
@@ -1552,10 +1552,12 @@ Returns the top of the internal-market order book for both sides, from the marke
 steem.api.getMarketOrderBook(2, (err, result) => console.log(result));
 ```
 
-**Returns:** `{ bids, asks }` with `price`, `steem`, and `sbd` per level.
+**Returns:** `{ bids, asks }` with `order_price`, `real_price`, `steem`, and `sbd` per level.
 ```js
-{ bids: [ { price: '0.911161', steem: 2195, sbd: 2000 } ],
-  asks: [ { price: '0.911456', steem: 9053, sbd: 8251 } ] }
+{ bids: [ { created: '2026-06-03T09:09:39', order_price: { base: '208.000 SBD', quote: '1932.817 STEEM' },
+            real_price: '0.107614', sbd: 208000, steem: 1932817 } ],
+  asks: [ { created: '2026-06-09T03:52:33', order_price: { base: '3862.653 STEEM', quote: '416.000 SBD' },
+            real_price: '0.107697', sbd: 416000, steem: 3862653 } ] }
 ```
 
 === getTradeHistory
@@ -1634,7 +1636,13 @@ Looks up SPS/DHF (proposal system) proposals by id.
 steem.api.findProposals([0, 1], (err, result) => console.log(result));
 ```
 
-**Returns:** an array of proposal objects (`id`, `creator`, `receiver`, `daily_pay`, `total_votes`, …).
+**Returns:** an array of proposal objects.
+```js
+[ { id: 0, proposal_id: 0, creator: 'gtg', receiver: 'steem.dao',
+    start_date: '2019-08-27T00:00:00', end_date: '2029-12-31T23:59:59',
+    daily_pay: '240000000.000 SBD', subject: 'Return Proposal', permlink: 'steemdao',
+    total_votes: '81911325896766565' } ]
+```
 
 === listProposals
 Lists SPS/DHF proposals with paging, ordering, and status filters.
@@ -1677,7 +1685,7 @@ steem.api.listProposalVotes([], 10, 33, 1, 0, (err, result) => console.log(resul
 **Returns:** an array of proposal-vote objects.
 
 === getNaiPool
-Returns the pool of available NAI (asset) identifiers used when creating SMTs.
+Returns the pool of available NAI (asset) identifiers used when creating SMTs. Requires a node with SMT support — not available on Steem mainnet (returns an error there).
 
 **Example**
 ```js

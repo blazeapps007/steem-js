@@ -10,6 +10,16 @@ nav_order: 5
 transactions. On Steem, the four key roles — `owner`, `active`, `posting`, `memo` — are each
 derived deterministically from the account name, the role, and the master password.
 
+All examples below assume:
+
+```js
+import steem from '@steemit/steem-js';
+// CommonJS: const steem = require('@steemit/steem-js');
+```
+
+Auth runs entirely offline (no network), so it works the same on Node, the browser, edge, and
+Deno — handy for key derivation and signing in a wallet or backend.
+
 ## Deriving keys
 
 ```js

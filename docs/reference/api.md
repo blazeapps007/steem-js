@@ -8,6 +8,13 @@ nav_order: 1
 
 Read calls against a Steem RPC node. Every method below is generated from [`src/api/methods.js`](https://github.com/blazeapps007/steem-js/blob/master/src/api/methods.js).
 
+All examples assume:
+
+```js
+import steem from '@steemit/steem-js';
+// CommonJS: const steem = require('@steemit/steem-js');
+```
+
 Each method has four call styles, created automatically:
 
 | Style | Signature | Notes |

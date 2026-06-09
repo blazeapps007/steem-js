@@ -10,6 +10,13 @@ nav_order: 3
 network. **They cause permanent changes on the blockchain.** For the full list of operations
 and their signatures, see the [Broadcast reference](../reference/broadcast).
 
+All examples below assume:
+
+```js
+import steem from '@steemit/steem-js';
+// CommonJS: const steem = require('@steemit/steem-js');
+```
+
 ## Callbacks or Promises
 
 Every broadcast method works both ways. Omit the callback to get a Promise.

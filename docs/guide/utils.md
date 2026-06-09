@@ -8,6 +8,13 @@ nav_order: 8
 
 `steem.utils` holds small standalone helpers.
 
+All examples below assume:
+
+```js
+import steem from '@steemit/steem-js';
+// CommonJS: const steem = require('@steemit/steem-js');
+```
+
 ## validateAccountName
 
 Validates a Steem account name against the chain's rules. Returns `null` when the name is

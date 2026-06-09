@@ -123,6 +123,12 @@ function generateApi() {
     `Read calls against a Steem RPC node. Every method below is generated from ` +
     `[\`src/api/methods.js\`](${REPO}/src/api/methods.js).\n\n`;
   body +=
+    `All examples assume:\n\n` +
+    '```js\n' +
+    "import steem from '@steemit/steem-js';\n" +
+    "// CommonJS: const steem = require('@steemit/steem-js');\n" +
+    '```\n\n';
+  body +=
     `Each method has four call styles, created automatically:\n\n` +
     `| Style | Signature | Notes |\n|---|---|---|\n` +
     `| Positional + callback | \`steem.api.name(...args, cb)\` | classic Node callback |\n` +
@@ -173,6 +179,12 @@ function generateBroadcast() {
     `Write operations. These sign a transaction and broadcast it to the network — they ` +
     `cause permanent changes on the blockchain. Generated from ` +
     `[\`src/broadcast/operations.js\`](${REPO}/src/broadcast/operations.js).\n\n`;
+  body +=
+    `All examples assume:\n\n` +
+    '```js\n' +
+    "import steem from '@steemit/steem-js';\n" +
+    "// CommonJS: const steem = require('@steemit/steem-js');\n" +
+    '```\n\n';
   body +=
     `Every method accepts a trailing callback **or** returns a Promise if you omit it ` +
     `(an \`Async\` suffix variant also exists). The first argument is the signing key ` +

@@ -9,7 +9,13 @@ nav_order: 4
 The library can follow the chain in real time by polling dynamic global properties. Each
 stream method returns a **release function** — call it to stop streaming.
 
-All four accept an optional `mode` of `'head'` (default) or `'irreversible'`.
+All four accept an optional `mode` of `'head'` (default) or `'irreversible'`. All examples
+below assume:
+
+```js
+import steem from '@steemit/steem-js';
+// CommonJS: const steem = require('@steemit/steem-js');
+```
 
 ## streamBlockNumber
 

@@ -9,6 +9,13 @@ nav_order: 7
 `steem.formatter` provides display and conversion helpers. It is constructed with the API
 instance, so the helpers that need network data work against your configured endpoint.
 
+All examples below assume:
+
+```js
+import steem from '@steemit/steem-js';
+// CommonJS: const steem = require('@steemit/steem-js');
+```
+
 ## reputation
 
 Converts a raw reputation integer into the human 25-based score shown in UIs.

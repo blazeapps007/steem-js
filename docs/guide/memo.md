@@ -10,6 +10,16 @@ nav_order: 6
 `#`. Encryption uses the sender's private memo key and the recipient's public memo key;
 decryption uses the recipient's (or sender's) private memo key.
 
+All examples below assume:
+
+```js
+import steem from '@steemit/steem-js';
+// CommonJS: const steem = require('@steemit/steem-js');
+```
+
+Memo crypto is AES-256-CBC via `@noble/ciphers` — pure JS, so encode/decode work on every
+runtime and remain byte-compatible with the previous version.
+
 ## encode
 
 ```js

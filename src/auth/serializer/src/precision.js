@@ -1,7 +1,6 @@
 var _my;
 var _internal;
 var v = require('./validation');
-var BigInteger = require('bigi');
 
 module.exports = _my =
 
@@ -13,7 +12,7 @@ module.exports = _my =
     // See http://cryptocoinjs.com/modules/misc/bigi/#example
     {to_bigint64(number_or_string, precision, error_info = ""){
         var long = _internal.to_long64(number_or_string, precision, error_info);
-        return BigInteger(long.toString());
+        return BigInt(long.toString());
     },
     
     // 101 string or long with a precision of 2 returns "1.01" 

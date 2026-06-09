@@ -1,4 +1,4 @@
-var ByteBuffer = require('bytebuffer');
+var ByteBuffer = require('./bytebuffer-lite.js');
 
 module.exports=function(type){
 

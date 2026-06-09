@@ -1,4 +1,4 @@
-var ByteBuffer = require('bytebuffer');
+var ByteBuffer = require('./bytebuffer-lite.js');
 var EC = require('./error_with_cause');
 
 const HEX_DUMP = process.env.npm_config__graphene_serializer_hex_dump

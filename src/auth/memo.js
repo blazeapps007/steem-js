@@ -1,4 +1,4 @@
-import ByteBuffer from 'bytebuffer';
+import ByteBuffer from './serializer/src/bytebuffer-lite.js';
 import assert from 'assert';
 import base58 from 'bs58';
 import ecc from './ecc/index.js';

@@ -3,8 +3,12 @@
  * Based on the original @steemit/rpc-auth package
  */
 
-import { createHash, randomBytes } from 'crypto';
-import { PrivateKey } from '../auth/ecc';
+import { randomBytes } from '@noble/hashes/utils.js';
+import { sha256 } from '../auth/ecc/src/hash.js';
+import { PrivateKey } from '../auth/ecc/index.js';
+import Signature from '../auth/ecc/src/signature.js';
+
+const utf8 = s => Buffer.from(String(s), 'utf8');
 
 /**
  * Signing constant used to reserve opcode space and prevent cross-protocol attacks.
@@ -24,18 +28,9 @@ export const K = Buffer.from('3b3b081e46ea808d5a96b08c4bc5003f5e15767090f344faab
  * @returns bytes to be signed or validated.
  */
 function hashMessage(timestamp, account, method, params, nonce) {
-  const first = createHash('sha256');
-  first.update(timestamp);
-  first.update(account);
-  first.update(method);
-  first.update(params);
-
-  const second = createHash('sha256');
-  second.update(K);
-  second.update(first.digest());
-  second.update(nonce);
-
-  return second.digest();
+  const first = sha256(Buffer.concat([utf8(timestamp), utf8(account), utf8(method), utf8(params)]));
+  const nonceBuf = Buffer.isBuffer(nonce) ? nonce : Buffer.from(nonce);
+  return sha256(Buffer.concat([K, first, nonceBuf]));
 }
 
 /**
@@ -47,7 +42,7 @@ export function sign(request, account, keys) {
   }
 
   const params = Buffer.from(JSON.stringify(request.params), 'utf8').toString('base64');
-  const nonceBytes = randomBytes(8);
+  const nonceBytes = Buffer.from(randomBytes(8));
   const nonce = nonceBytes.toString('hex');
   const timestamp = new Date().toISOString();
 
@@ -58,9 +53,9 @@ export function sign(request, account, keys) {
   const signatures = [];
   for (let key of keys) {
     if (typeof key === 'string') {
-      key = PrivateKey.fromString(key);
+      key = PrivateKey.fromWif(key);
     }
-    const signature = key.sign(message).toHex();
+    const signature = Signature.signBufferSha256(message, key).toHex();
     signatures.push(signature);
   }
 

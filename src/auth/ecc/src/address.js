@@ -1,7 +1,7 @@
-const assert = require('assert');
-const config = require('../../../config');
-const hash = require('./hash');
-const base58 = require('bs58');
+import assert from 'assert';
+import config from '../../../config.js';
+import hash from './hash.js';
+import base58 from 'bs58';
 
 /** Addresses are shortened non-reversable hashes of a public key.  The full PublicKey is preferred.
     @deprecated
@@ -53,4 +53,4 @@ class Address {
     }
 }
 
-module.exports = Address;
+export default Address;

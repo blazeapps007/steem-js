@@ -1,7 +1,11 @@
-import fetch from 'cross-fetch';
 import newDebug from 'debug';
 import retry from 'retry';
-import Transport from './base';
+import Transport from './base.js';
+
+// Native fetch (Node 18+, browsers, edge runtimes, Deno). Callers may override via options.fetchMethod.
+const globalFetch = typeof globalThis !== 'undefined' && globalThis.fetch
+  ? globalThis.fetch.bind(globalThis)
+  : undefined;
 
 const debug = newDebug('steem:http');
 
@@ -26,7 +30,7 @@ class RPCError extends Error {
  * stubbing in tests.
  * @param {number} [options.timeoutMs=30000] - Request timeout in milliseconds.
  */
-export function jsonRpc(uri, {method, id, params, fetchMethod=fetch, timeoutMs=30000}) {
+export function jsonRpc(uri, {method, id, params, fetchMethod=globalFetch, timeoutMs=30000}) {
   const payload = {id, jsonrpc: '2.0', method, params};
   
   let timeoutId = null;

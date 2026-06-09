@@ -17,7 +17,9 @@ const Config = require("../../../config.js");
 const Types = {};
 module.exports = Types;
 
-const HEX_DUMP = process.env.npm_config__graphene_serializer_hex_dump
+const HEX_DUMP = typeof process !== 'undefined' && process.env
+    ? process.env.npm_config__graphene_serializer_hex_dump
+    : undefined;
 
 // Highly optimized implementation of Damm algorithm
 // https://en.wikipedia.org/wiki/Damm_algorithm

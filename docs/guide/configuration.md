@@ -29,6 +29,27 @@ The transport is chosen from the URL scheme:
 A few capabilities are HTTP-only — notably the raw [`call` / `signedCall`](#raw-rpc-calls)
 methods, which throw if you are connected over WebSocket.
 
+**Transport details (isomorphic):**
+
+- HTTP uses the runtime's **global `fetch`** (Node 18+, browsers, edge, Deno). Override it
+  per instance with `setOptions({ fetchMethod })` — handy for proxies, custom headers, auth,
+  or tests.
+- WebSocket uses the **global `WebSocket`** where available (browsers, Deno, Node 22+),
+  falling back to the optional [`ws`](https://www.npmjs.com/package/ws) package on older Node
+  (`npm install ws`). Edge runtimes are HTTP-only — use the default transport there.
+
+```js
+// Custom fetch (e.g. inject an API key / proxy)
+steem.api.setOptions({
+  url: 'https://api.steemit.com',
+  fetchMethod: (uri, options) => fetch(uri, { ...options, headers: { ...options.headers, 'x-api-key': KEY } }),
+});
+
+// Automatic retries on transient failures (non-broadcast calls)
+steem.api.setOptions({ url: 'https://api.steemit.com', retry: true });
+steem.api.setOptions({ url: 'https://api.steemit.com', retry: { retries: 3, minTimeout: 200 } });
+```
+
 ## `config.get` / `config.set`
 
 `steem.config` holds the chain parameters. The defaults target Steem mainnet:
@@ -69,6 +90,9 @@ id can change between testnet launches; check the relevant announcement if signi
 | `useTestNet` | Convenience flag; sets the `TST` address prefix |
 | `logger` | A function `(…args)` or an object with a `.log` method, used to trace requests/responses |
 | `transport` | Force a transport: `'http'`, `'ws'`, or a custom transport class |
+| `fetchMethod` | A `fetch`-compatible function used by the HTTP transport (defaults to the global `fetch`) |
+| `retry` | `true` for default retries, or an options object (`{ retries, minTimeout, … }`); broadcast ops are never retried |
+| `useAppbaseApi` | Route calls through `condenser_api` |
 
 `steem.api.setWebSocket(url)` and `steem.api.setUri(url)` are thin shortcuts over
 `setOptions`.
@@ -88,10 +112,13 @@ Both have `…Async` promise variants (`callAsync`, `signedCallAsync`).
 
 ## Multiple instances
 
-The default export is a ready-to-use singleton. To run more than one connection, construct
-your own:
+The default export is a ready-to-use singleton (`steem.api`). To run more than one
+connection, construct your own with the `Steem` class (attached as `steem.api.Steem`):
 
 ```js
-const { Steem } = require('@steemit/steem-js');
-const node = new Steem({ url: 'https://api.steemit.com' });
+import steem from '@steemit/steem-js';
+
+const Node = steem.api.Steem;
+const node = new Node({ url: 'https://api.steemit.com' });
+const [account] = await node.getAccountsAsync(['ned']);
 ```

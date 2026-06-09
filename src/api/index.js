@@ -352,7 +352,8 @@ class Steem extends EventEmitter {
     }
 }
 
-// Export singleton instance
+// Export singleton instance (with the class attached for back-compat: steem.api.Steem)
 const steem = new Steem(config);
+steem.Steem = Steem;
 export default steem;
 export { Steem };

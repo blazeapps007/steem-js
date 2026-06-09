@@ -5,10 +5,12 @@
   "type": "commonjs",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
   "unpkg": "dist/steem.min.js",
   "jsdelivr": "dist/steem.min.js",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.js",
       "default": "./dist/index.mjs"
@@ -25,7 +27,8 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "tsup",
+    "build": "tsup && npm run gen-types",
+    "gen-types": "babel-node scripts/gen-types.js",
     "dev": "tsup --watch",
     "test": "vitest run",
     "test:watch": "vitest",

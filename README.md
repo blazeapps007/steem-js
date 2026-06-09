@@ -6,30 +6,16 @@ Steem.js the JavaScript API for Steem blockchain
 
 # Documentation
 
-- [Install](https://github.com/steemit/steem-js/tree/master/doc#install)
-- [Browser](https://github.com/steemit/steem-js/tree/master/doc#browser)
-- [Config](https://github.com/steemit/steem-js/tree/master/doc#config)
-- [Database API](https://github.com/steemit/steem-js/tree/master/doc#api)
-    - [Subscriptions](https://github.com/steemit/steem-js/tree/master/doc#subscriptions)
-    - [Tags](https://github.com/steemit/steem-js/tree/master/doc#tags)
-    - [Blocks and transactions](https://github.com/steemit/steem-js/tree/master/doc#blocks-and-transactions)
-    - [Globals](https://github.com/steemit/steem-js/tree/master/doc#globals)
-    - [Keys](https://github.com/steemit/steem-js/tree/master/doc#keys)
-    - [Accounts](https://github.com/steemit/steem-js/tree/master/doc#accounts)
-    - [Market](https://github.com/steemit/steem-js/tree/master/doc#market)
-    - [Authority / validation](https://github.com/steemit/steem-js/tree/master/doc#authority--validation)
-    - [Votes](https://github.com/steemit/steem-js/tree/master/doc#votes)
-    - [Content](https://github.com/steemit/steem-js/tree/master/doc#content)
-    - [Witnesses](https://github.com/steemit/steem-js/tree/master/doc#witnesses)
-- [Login API](https://github.com/steemit/steem-js/tree/master/doc#login)
-- [Follow API](https://github.com/steemit/steem-js/tree/master/doc#follow-api)
-- [Broadcast API](https://github.com/steemit/steem-js/tree/master/doc#broadcast-api)
-- [Broadcast](https://github.com/steemit/steem-js/tree/master/doc#broadcast)
-- [Auth](https://github.com/steemit/steem-js/tree/master/doc#auth)
+📖 **Full documentation: <https://blazeapps007.github.io/steem-js/>**
 
+The site covers 100% of the library. The API and Broadcast references are generated from the
+library source, so they always list every method in the installed version.
 
-Here is full documentation:
-https://github.com/steemit/steem-js/tree/master/doc
+- [Guide](https://blazeapps007.github.io/steem-js/guide/) — install, configuration, broadcasting, streaming, auth, memo, formatter, utils
+- [API reference (`steem.api`)](https://blazeapps007.github.io/steem-js/reference/api)
+- [Broadcast reference (`steem.broadcast`)](https://blazeapps007.github.io/steem-js/reference/broadcast)
+
+Docs sources live in [`/docs`](docs); regenerate the reference with `npm run docs:generate`.
 
 ## Browser
 ```html

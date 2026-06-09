@@ -1,0 +1,146 @@
+# Per-operation prose for steem.broadcast, merged into docs/reference/broadcast.md.
+# Keyed by camelCase operation name. Fields (all optional, single line each): description, params, returns.
+
+# --- Core social ---
+vote:
+  description: "Casts a vote on a post or comment. `weight` ranges -10000..10000 (100% = 10000)."
+comment:
+  description: "Creates or edits a post/comment. Leave `parentAuthor`/`parentPermlink` empty for a top-level post. If `permlink` is omitted for a reply, one is derived from the parent."
+commentOptions:
+  description: "Sets payout options for a comment (max accepted payout, percent SBD, whether votes/curation are allowed)."
+deleteComment:
+  description: "Deletes a post/comment that has no votes or replies."
+
+# --- Transfers / vesting / savings ---
+transfer:
+  description: "Transfers liquid assets between accounts. `amount` is a string like '5.150 SBD' with exactly 3 decimals."
+transferToVesting:
+  description: "Powers up STEEM into STEEM POWER (VESTS). `to` may differ from `from` to power up another account; `amount` must be denominated in STEEM."
+withdrawVesting:
+  description: "Starts (or stops, with 0) a power-down of `vesting_shares` VESTS."
+setWithdrawVestingRoute:
+  description: "Routes a percentage of a power-down to another account, optionally auto-vesting it."
+delegateVestingShares:
+  description: "Delegates STEEM POWER (VESTS) from delegator to delegatee. Set to 0 VESTS to undelegate."
+transferToSavings:
+  description: "Moves assets into the 3-day savings balance."
+transferFromSavings:
+  description: "Requests a withdrawal from savings (subject to the savings delay). Identified by `request_id`."
+cancelTransferFromSavings:
+  description: "Cancels a pending savings withdrawal by `request_id`."
+convert:
+  description: "Requests conversion of SBD to STEEM (settles after the conversion delay)."
+
+# --- Market ---
+limitOrderCreate:
+  description: "Creates an internal-market limit order using a min-to-receive amount. `expiration` must be in the future; set `fill_or_kill` to fill only from the current book."
+limitOrderCreate2:
+  description: "Like limitOrderCreate but priced with an explicit exchange rate object instead of min-to-receive."
+limitOrderCancel:
+  description: "Cancels an open limit order by `orderid`. The order may fill before cancellation completes."
+feedPublish:
+  description: "Witness operation: publishes a STEEM/SBD price feed (`exchange_rate`)."
+
+# --- Account management ---
+accountCreate:
+  description: "Creates a new account, paying the creation `fee`. Supply owner/active/posting authority objects and a memo key."
+accountCreateWithDelegation:
+  description: "Creates a new account using a fee plus a VESTS `delegation` to cover bandwidth."
+claimAccount:
+  description: "Claims an account-creation token (pays the fee up front) to mint a discounted account later via createClaimedAccount."
+createClaimedAccount:
+  description: "Creates an account using a previously claimed account-creation token (no fee at creation time)."
+accountUpdate:
+  description: "Updates an account's authorities, memo key, and/or json_metadata."
+accountUpdate2:
+  description: "Like accountUpdate but also supports `posting_json_metadata` and extensions (HF21+)."
+accountWitnessVote:
+  description: "Approves or unapproves a witness for the account's witness votes."
+accountWitnessProxy:
+  description: "Delegates the account's witness voting to a proxy account (empty string clears it)."
+declineVotingRights:
+  description: "Irreversibly declines the account's voting rights (owner authority, takes effect after a delay)."
+
+# --- Recovery ---
+requestAccountRecovery:
+  description: "Recovery agent proposes a new owner authority for an account that requested recovery."
+recoverAccount:
+  description: "Account owner completes recovery using a recent and the new owner authority. Signed with owner."
+changeRecoveryAccount:
+  description: "Sets a new recovery account (takes effect after a 30-day delay). Signed with owner."
+resetAccount:
+  description: "Reset-account operation (currently disabled on chain)."
+setResetAccount:
+  description: "Sets the account's reset account (currently disabled on chain)."
+
+# --- Witness / chain ---
+witnessUpdate:
+  description: "Registers or updates a witness (signing key, URL, chain props, fee). Empty signing key resigns the witness."
+witnessSetProperties:
+  description: "Sets witness-controlled chain properties via a typed props map (HF20+ replacement for parts of witnessUpdate)."
+
+# --- Escrow ---
+escrowTransfer:
+  description: "Creates an escrow between `from` and `to` with an `agent`, fee, and ratification/expiration deadlines."
+escrowApprove:
+  description: "Agent or recipient approves (or rejects) an escrow."
+escrowDispute:
+  description: "Raises a dispute on an escrow, handing release control to the agent."
+escrowRelease:
+  description: "Releases escrowed funds to a receiver."
+
+# --- Custom / advanced ---
+custom:
+  description: "Posts arbitrary binary custom data requiring the given active auths."
+customJson:
+  description: "Posts a custom JSON operation (the basis for most second-layer apps), with required active and/or posting auths."
+customBinary:
+  description: "Posts arbitrary binary custom data (posting-level)."
+claimRewardBalance:
+  description: "Claims pending author/curation rewards. Amounts are strings like '0.000 STEEM', '0.000 SBD', '0.000006 VESTS'."
+
+# --- DHF / SPS proposals ---
+createProposal:
+  description: "Creates an SPS/DHF funding proposal (creator, receiver, dates, daily_pay, subject, permlink)."
+updateProposalVotes:
+  description: "Approves or removes the voter's approval for one or more proposal ids."
+removeProposal:
+  description: "Removes proposals owned by the account by their ids."
+
+# --- SMT (Smart Media Tokens) ---
+smtCreate:
+  description: "Creates a Smart Media Token under a control account with a symbol, creation fee, and precision."
+smtSetup:
+  description: "Configures an SMT's supply, contribution window, launch time, and unit ratios."
+smtSetupEmissions:
+  description: "Defines an SMT's token emission schedule."
+smtSetupIcoTier:
+  description: "Adds or removes an ICO contribution tier for an SMT."
+smtSetSetupParameters:
+  description: "Sets SMT setup-phase parameters."
+smtSetRuntimeParameters:
+  description: "Sets SMT runtime parameters."
+smtContribute:
+  description: "Contributes STEEM to an SMT's ICO."
+
+# --- Virtual operations (emitted by the chain, documented for completeness) ---
+fillConvertRequest:
+  description: "Virtual op: emitted when an SBD->STEEM conversion settles."
+fillVestingWithdraw:
+  description: "Virtual op: emitted on each scheduled power-down payment."
+fillOrder:
+  description: "Virtual op: emitted when an internal-market order is (partially) filled."
+fillTransferFromSavings:
+  description: "Virtual op: emitted when a savings withdrawal completes."
+interest:
+  description: "Virtual op: emitted when SBD interest is paid."
+commentReward:
+  description: "Virtual op: emitted when a comment pays out."
+liquidityReward:
+  description: "Virtual op: emitted when a liquidity reward is paid."
+
+# --- Mining (legacy) ---
+pow:
+  description: "Legacy proof-of-work registration (pre-HF17)."
+pow2:
+  description: "Legacy proof-of-work v2 registration (pre-HF17)."

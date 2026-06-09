@@ -1,0 +1,108 @@
+# Per-method prose for steem.api, merged into docs/reference/api.md by scripts/gen-docs.js.
+# Keyed by camelCase method name. Fields (all optional, single line each): description, params, returns.
+# Adding a method here enriches it; every method is still listed even with no entry.
+
+# --- Tags / discussions ---
+getTrendingTags:
+  description: "Returns a list of the currently trending tags in descending order by value. Pass the empty string `''` for `afterTag` to start; use the last returned tag name to paginate."
+  params: "`afterTag` (String) last tag to begin after, `limit` (Integer) max tags."
+getTagsUsedByAuthor:
+  description: "Gets the tags an author has used. Most accounts have none."
+getPostDiscussionsByPayout:
+  description: "Recent posts ordered by pending payout. Note: the default `limit` is 0 — set one in the query or you get an empty result."
+getCommentDiscussionsByPayout:
+  description: "Recent comments (not posts) ordered by pending payout. Default `limit` is 0."
+getDiscussionsByTrending:
+  description: "Posts as shown on the trending tab. Pass a query like `{ limit: 3, tag: 'steem' }`. Default `limit` is 0."
+getDiscussionsByPromoted:
+  description: "Posts ordered by how much was spent to promote them. Default `limit` is 0."
+
+# --- Blog / feed (follow_api) ---
+getBlog:
+  description: "Gets up to `limit` posts of `account` ending at the post with index `entryId` (zero-based, counting backwards)."
+getBlogEntries:
+  description: "Like getBlog but returns lightweight entry objects (author, permlink, blog, reblog_on, entry_id)."
+getBlogAuthors:
+  description: "Lists everyone who has written in an account's blog, with how many times each did."
+getFeed:
+  description: "Gets the posts in a user's feed (followed accounts plus their resteems) as full discussion objects."
+getFeedEntries:
+  description: "Gets a user's feed as lightweight entry objects; `reblog_by` is populated when the post appears because it was resteemed."
+getRebloggedBy:
+  description: "Lists the accounts that reblogged (resteemed) a given post."
+
+# --- Blocks & transactions ---
+getOpsInBlock:
+  description: "Gets all operations in a block. Set `onlyVirtual` to true for virtual operations only."
+getState:
+  description: "Returns a large state bundle for a frontend `path` such as `/@username`, `/@username/permlink`, `/trending`, or `/trending/tag`."
+
+# --- Globals / market ---
+getTicker:
+  description: "Latest summarized internal-market data (latest price, bid/ask, 24h change, volumes)."
+getVolume:
+  description: "Current STEEM and SBD internal-market volumes."
+getTradeHistory:
+  description: "Internal-market trades between two ISO datetimes (e.g. '2018-01-01T00:00:00')."
+getRecentTrades:
+  description: "The most recent `limit` internal-market trades."
+getMarketHistory:
+  description: "OHLCV market buckets of `bucket_seconds` between `start` and `end` (use a value from getMarketHistoryBuckets)."
+getMarketHistoryBuckets:
+  description: "The bucket sizes (in seconds) supported by getMarketHistory, e.g. [15, 60, 300, 3600, 86400]."
+getVersion:
+  description: "Blockchain/daemon version info (blockchain_version, steem_revision, fc_revision)."
+getHardforkVersion:
+  description: "Current hardfork version as a plain string (not JSON)."
+
+# --- Accounts ---
+getAccountBandwidth:
+  description: "Bandwidth for an account. `bandwidthType` is 1 for forum (posting) and 2 for market (trading)."
+getAccountReputations:
+  description: "Reputation points for `limit` accounts whose names are closest to `lowerBoundName`."
+getVestingDelegations:
+  description: "Delegations made from `account`, denominated in VESTS. Paginate with the last delegatee's name in `from`."
+getExpiringVestingDelegations:
+  description: "Delegations from `account` that are expiring (being returned), starting at the `start` time."
+getWithdrawRoutes:
+  description: "Power-down (vesting withdraw) routes for `account`. `withdrawRouteType` is 0, 1, or 2."
+getSavingsWithdrawFrom:
+  description: "Pending savings withdrawals initiated by `account`."
+getSavingsWithdrawTo:
+  description: "Pending savings withdrawals destined for `account`."
+getEscrow:
+  description: "Details of a specific escrow transfer by `from` account and `escrowId`."
+findChangeRecoveryAccountRequests:
+  description: "Pending change-recovery-account requests for the given account name(s). Takes an object argument."
+
+# --- Witnesses ---
+getWitnessByAccount:
+  description: "Information about the witness owned by `accountName`."
+
+# --- Login ---
+login:
+  description: "Legacy login. Always returns true; only used internally with empty values to enable broadcast. Do NOT pass real credentials."
+
+# --- Network broadcast ---
+broadcastTransaction:
+  description: "Broadcasts an already-signed transaction and returns once the node accepts it into the mempool (does not wait for a block)."
+broadcastTransactionWithCallback:
+  description: "Broadcasts a signed transaction and invokes `confirmationCallback` when it is included in a block."
+broadcastTransactionSynchronous:
+  description: "Broadcasts a signed transaction and waits for the node's synchronous result (block_num, trx_num, etc.)."
+setMaxBlockAge:
+  description: "Tells the node the maximum block age it should accept when broadcasting; used to guard against broadcasting against a stale fork."
+
+# --- DHF / SPS proposals (condenser_api) ---
+findProposals:
+  description: "Look up SPS/DHF proposals by an array of ids (`id_set`)."
+listProposals:
+  description: "List SPS/DHF proposals with paging/order/status filters (`start`, `limit`, `order_by`, `order_direction`, `status`)."
+listProposalVotes:
+  description: "List votes on SPS/DHF proposals with the same paging/order/status filters."
+getNaiPool:
+  description: "Returns the pool of available NAI (asset) identifiers for creating SMTs."
+
+# --- Resource Credits (rc_api) ---
+findRcAccounts:
+  description: "Resource-credit balances/state for the given accounts. Takes an object argument: { accounts: [...] }."

@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(npm install *)",
+      "Bash(python -c 'import yaml,glob,sys *)",
+      "Bash(ruby --version)",
+      "Bash(bundle --version)",
+      "Bash(jekyll --version)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(git checkout *)"
+    ]
+  }
+}

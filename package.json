@@ -10,6 +10,7 @@
     "prepare": "npm run build",
     "test": "babel-node --presets @babel/preset-env node_modules/mocha/bin/mocha test/*.js",
     "test-auth": "npm test -- --grep 'steem.auth'",
+    "docs:generate": "babel-node scripts/gen-docs.js",
     "lint": "eslint src",
     "prepublish": "npm run build"
   },

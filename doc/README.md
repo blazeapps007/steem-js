@@ -1,5 +1,13 @@
 # Documentation
 
+> 📖 **The full, always-up-to-date documentation now lives at
+> <https://blazeapps007.github.io/steem-js/>.**
+>
+> That site is the canonical reference: the `steem.api` and `steem.broadcast` pages are
+> generated directly from the library source, so they cover **every** method in the installed
+> version (the page below is hand-maintained and may lag). Sources live in
+> [`/docs`](../docs); regenerate the reference with `npm run docs:generate`.
+
 - [Install](#install)
 - [Browser](#browser)
 - [Config](#config)

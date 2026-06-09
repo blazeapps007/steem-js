@@ -42,7 +42,7 @@ The public API is a single object assembled in `src/index.js`, re-exporting the 
 ### `src/broadcast/` — writing transactions
 - `index.js` similarly **generates a broadcast helper for each entry in `operations.json`** (mirrored by `operations.js` which lists params + the key `roles` required). `send` builds the tx, sets `ref_block_num`/`ref_block_prefix`/`expiration` from dynamic global props, signs via `auth.signTransaction`, then calls `broadcastTransactionSynchronous`.
 - `helpers.js` adds higher-level composed helpers (`addAccountAuth`, `removeKeyAuth`, etc.) that read the account, mutate its authority, and call `accountUpdate`.
-- All broadcast methods accept either a trailing callback or return a Promise (`Promise.promisifyAll`).
+- All broadcast methods accept either a trailing callback or return a Promise. The dual callback/Promise behavior comes from the tiny native-Promise helpers in `src/_promise.js` (`promisify`/`promisifyAll`/`nodeify`/`delay`) — the library no longer depends on `bluebird`.
 
 ### `src/auth/` — crypto, keys, serialization
 - `index.js` (`steem.auth`): key derivation from username+password+role (`generateKeys`, `toWif`, `getPrivateKeys`), `verify`, `signTransaction`.

@@ -1,5 +1,5 @@
 import EventEmitter from 'events';
-import Promise from 'bluebird';
+import { promisify, delay } from '../_promise.js';
 import config from '../config.js';
 import methods from './methods.js';
 import transports from './transports/index.js';
@@ -52,11 +52,11 @@ class Steem extends EventEmitter {
                 return this[`${methodName}With`](options, callback);
             };
 
-            this[`${methodName}WithAsync`] = Promise.promisify(this[`${methodName}With`]);
-            this[`${methodName}Async`] = Promise.promisify(this[methodName]);
+            this[`${methodName}WithAsync`] = promisify(this[`${methodName}With`]);
+            this[`${methodName}Async`] = promisify(this[methodName]);
         });
-        this.callAsync = Promise.promisify(this.call);
-        this.signedCallAsync = Promise.promisify(this.signedCall);
+        this.callAsync = promisify(this.call);
+        this.signedCallAsync = promisify(this.signedCall);
     }
 
     _setTransport(options) {
@@ -236,7 +236,7 @@ class Steem extends EventEmitter {
                         }
                     }
 
-                    Promise.delay(ts).then(() => {
+                    delay(ts).then(() => {
                         update();
                     });
                 },

@@ -34,10 +34,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 18
-          cache: npm
 
+      # This repo doesn't commit a package-lock.json (it's gitignored), so use
+      # `npm install` rather than `npm ci`, and skip lockfile-based caching.
       - name: Install dependencies
-        run: npm ci
+        run: npm install --no-audit --no-fund
 
       - name: Generate reference (always in sync with the source)
         run: npm run docs:generate

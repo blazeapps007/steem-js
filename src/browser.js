@@ -1,10 +1,10 @@
-const api = require("./api");
-const auth = require("./auth");
-const memo = require("./auth/memo");
-const broadcast = require("./broadcast");
-const config = require("./config");
-const formatter = require("./formatter")(api);
-const utils = require("./utils");
+import api from './api/index.js';
+import auth from './auth/index.js';
+import memo from './auth/memo.js';
+import broadcast from './broadcast/index.js';
+import config from './config.js';
+import formatterFactory from './formatter.js';
+import * as utils from './utils.js';
 
 const steem = {
   api,
@@ -12,16 +12,13 @@ const steem = {
   memo,
   broadcast,
   config,
-  formatter,
-  utils
+  formatter: formatterFactory(api),
+  utils,
 };
 
-if (typeof window !== "undefined") {
-  window.steem = steem;
+const g = typeof globalThis !== 'undefined' ? globalThis : undefined;
+if (g) {
+  g.steem = steem;
 }
 
-if (typeof global !== "undefined") {
-  global.steem = steem;
-}
-
-exports = module.exports = steem;
+export default steem;

@@ -1,12 +1,12 @@
 import Promise from 'bluebird';
 import newDebug from 'debug';
 
-import broadcastHelpers from './helpers';
-import formatterFactory from '../formatter';
-import operations from './operations';
-import steemApi from '../api';
-import steemAuth from '../auth';
-import { camelCase } from '../utils';
+import broadcastHelpers from './helpers.js';
+import formatterFactory from '../formatter.js';
+import operations from './operations.js';
+import steemApi from '../api/index.js';
+import steemAuth from '../auth/index.js';
+import { camelCase } from '../utils.js';
 
 const debug = newDebug('steem:broadcast');
 const noop = function() {}
@@ -131,4 +131,4 @@ broadcastHelpers(steemBroadcast);
 // For backwards compatibility, maintain the Async versions
 Promise.promisifyAll(steemBroadcast);
 
-exports = module.exports = steemBroadcast;
+export default steemBroadcast;

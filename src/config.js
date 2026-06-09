@@ -1,10 +1,11 @@
-import each from 'lodash/each';
+// Pure CommonJS so both `require('../config')` (from the crypto modules) and
+// `import config from '../config.js'` (default interop) resolve to the same instance.
 const defaultConfig = require('../config.json');
 
 class Config {
   constructor(c) {
-    each(c, (value, key) => {
-      this[key] = value;
+    Object.keys(c).forEach((key) => {
+      this[key] = c[key];
     });
   }
 
@@ -17,8 +18,11 @@ class Config {
   }
 }
 
-module.exports = new Config(defaultConfig);
-if(typeof module.exports.Config !== 'undefined') {
+if (typeof defaultConfig.Config !== 'undefined') {
   throw new Error("default config.json file may not contain a property 'Config'");
 }
-module.exports.Config = Config;
+
+const config = new Config(defaultConfig);
+config.Config = Config;
+
+module.exports = config;

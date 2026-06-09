@@ -1,23 +1,23 @@
 import EventEmitter from 'events';
 import Promise from 'bluebird';
-import config from '../config';
-import methods from './methods';
-import transports from './transports';
+import config from '../config.js';
+import methods from './methods.js';
+import transports from './transports/index.js';
 import {
     camelCase
-} from '../utils';
+} from '../utils.js';
 import {
     hash
-} from '../auth/ecc';
+} from '../auth/ecc/index.js';
 import {
     ops
-} from '../auth/serializer';
+} from '../auth/serializer/index.js';
 import {
     jsonRpc
-} from './transports/http';
+} from './transports/http.js';
 import {
     sign as signRequest
-} from './rpc-auth';
+} from './rpc-auth.js';
 
 class Steem extends EventEmitter {
     constructor(options = {}) {
@@ -354,5 +354,5 @@ class Steem extends EventEmitter {
 
 // Export singleton instance
 const steem = new Steem(config);
-exports = module.exports = steem;
-exports.Steem = Steem;
+export default steem;
+export { Steem };

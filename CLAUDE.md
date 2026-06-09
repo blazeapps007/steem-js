@@ -56,12 +56,22 @@ The two core surfaces — read methods and broadcast operations — are **data-d
 ## Docs
 
 The documentation site lives in `/docs` (Jekyll + just-the-docs) and is published to GitHub
-Pages by `.github/workflows/docs.yml` on push to `master`. The `steem.api` and
-`steem.broadcast` reference pages are **generated** by `npm run docs:generate`
-([scripts/gen-docs.js](scripts/gen-docs.js)) from the same `methods.js`/`operations.js`
-descriptors — never hand-edit `docs/reference/api.md` or `docs/reference/broadcast.md`. To
-enrich a method's prose, edit the overlays in `docs/_data/*.yml`; to add a method, edit the
-descriptor arrays and rerun the generator. Hand-written conceptual pages are in `docs/guide/`.
+Pages by GitHub's built-in branch build (Pages Source = "Deploy from a branch", folder
+`/docs`) — there is no docs CI workflow.
+
+The `steem.api` and `steem.broadcast` reference pages are **generated** by
+`npm run docs:generate` ([scripts/gen-docs.js](scripts/gen-docs.js)). The generator drives
+the complete method/operation list (and signatures, roles, RPC names) from the same
+`methods.js`/`operations.js` descriptors, then splices in per-entry prose from
+`docs/_details/api.md` and `docs/_details/broadcast.md` (blocks separated by `=== name`
+lines, each containing a description, parameter table, example, and returns).
+
+- **Never hand-edit** `docs/reference/api.md` or `docs/reference/broadcast.md` — they are
+  generated and committed; regenerate and commit after changes.
+- To enrich an entry, edit its `=== name` block in `docs/_details/`.
+- To add a method/op, edit the descriptor array, add a matching `=== name` block, then run
+  `npm run docs:generate` (it prints any entries still missing a detail block).
+- Hand-written conceptual pages are in `docs/guide/`.
 
 ## Conventions
 

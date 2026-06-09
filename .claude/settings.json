@@ -8,7 +8,12 @@
       "Bash(bundle --version)",
       "Bash(jekyll --version)",
       "Bash(echo \"exit: $?\")",
-      "Bash(git checkout *)"
+      "Bash(git checkout *)",
+      "WebFetch(domain:blazeapps007.github.io)",
+      "Bash(node -e \"try{require.resolve\\('js-yaml'\\);console.log\\('js-yaml: available'\\)}catch\\(e\\){console.log\\('js-yaml: MISSING'\\)}\")",
+      "Bash(node -e \"try{require.resolve\\('yaml'\\);console.log\\('yaml: available'\\)}catch\\(e\\){console.log\\('yaml: MISSING'\\)}\")",
+      "Bash(git rm *)",
+      "Bash(awk '/^### transfer$/{f=1} f{print} /^<small>Operation: `transfer`/{exit}' docs/reference/broadcast.md)"
     ]
   }
 }

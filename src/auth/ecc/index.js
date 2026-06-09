@@ -1,12 +1,23 @@
+import Address from './src/address.js';
+import Aes from './src/aes.js';
+import PrivateKey from './src/key_private.js';
+import PublicKey from './src/key_public.js';
+import Signature from './src/signature.js';
+import * as brainKey from './src/brain_key.js';
+import key_utils from './src/key_utils.js';
+import hash from './src/hash.js';
+import ecc_config from '../../config.js';
 
-module.exports = {
-    Address: require("./src/address"),
-    Aes: require("./src/aes"),
-    PrivateKey: require("./src/key_private"),
-    PublicKey: require("./src/key_public"),
-    Signature: require("./src/signature"),
-    brainKey: require("./src/brain_key"),
-    key_utils: require("./src/key_utils"),
-    hash: require("./src/hash"),
-    ecc_config: require("../../config")
-}
+export { Address, Aes, PrivateKey, PublicKey, Signature, brainKey, key_utils, hash, ecc_config };
+
+export default {
+  Address,
+  Aes,
+  PrivateKey,
+  PublicKey,
+  Signature,
+  brainKey,
+  key_utils,
+  hash,
+  ecc_config,
+};

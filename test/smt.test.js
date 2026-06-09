@@ -7,7 +7,9 @@ const username = process.env.STEEM_USERNAME || 'guest123';
 const password = process.env.STEEM_PASSWORD;
 const activeWif = steem.auth.toWif(username, password, 'active');
 
-describe('steem.smt:', () => {
+const describeLive = process.env.STEEM_LIVE === '1' ? describe : describe.skip;
+
+describeLive('steem.smt:', () => {
 
   describe('smt creation ops', () => {
     it('signs and verifies smt_create', function(done) {

@@ -1,15 +1,11 @@
-import bigi from 'bigi';
 import bs58 from 'bs58';
-import ecurve from 'ecurve';
 import config from '../config.js';
 import operations from './serializer/src/operations.js';
 import Signature from './ecc/src/signature.js';
 import KeyPrivate from './ecc/src/key_private.js';
 import PublicKey from './ecc/src/key_public.js';
 import hash from './ecc/src/hash.js';
-
-var Point = ecurve.Point,
-	secp256k1 = ecurve.getCurveByName('secp256k1');
+import { G, bytesToBig } from './ecc/src/curve.js';
 
 var Auth = {};
 var transaction = operations.transaction;
@@ -36,10 +32,8 @@ Auth.generateKeys = function (name, password, roles) {
 		var seed = name + role + password;
 		var brainKey = seed.trim().split(/[\t\n\v\f\r ]+/).join(' ');
 		var hashSha256 = hash.sha256(brainKey);
-		var bigInt = bigi.fromBuffer(hashSha256);
-		var toPubKey = secp256k1.G.multiply(bigInt);
-		var point = new Point(toPubKey.curve, toPubKey.x, toPubKey.y, toPubKey.z);
-		var pubBuf = point.getEncoded(toPubKey.compressed);
+		var bigInt = bytesToBig(hashSha256);
+		var pubBuf = Buffer.from(G.multiply(bigInt).toBytes(true));
 		var checksum = hash.ripemd160(pubBuf);
 		var addy = Buffer.concat([pubBuf, checksum.slice(0, 4)]);
 		pubKeys[role] = config.get('address_prefix') + bs58.encode(addy);

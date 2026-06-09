@@ -8,7 +8,9 @@ const postingWif = password
   ? steem.auth.toWif(username, password, 'posting')
   : '5JRaypasxMx1L97ZUX7YuC5Psb5EAbF821kkAGtBj7xCJFQcbLg';
 
-describe('steem.broadcast:', () => {
+const describeLive = process.env.STEEM_LIVE === '1' ? describe : describe.skip;
+
+describeLive('steem.broadcast:', () => {
   it('exists', () => {
     should.exist(steem.broadcast);
   });
@@ -114,7 +116,6 @@ describe('steem.broadcast:', () => {
 
   describe('downvoting', () => {
     it('works', async function() {
-      this.timeout(10000);
       const tx = await steem.broadcast.voteAsync(
         postingWif,
         username,
@@ -135,12 +136,10 @@ describe('steem.broadcast:', () => {
 
   describe('voting', () => {
     beforeEach(function() {
-      this.timeout(10000);
       return Promise.delay(3000);
     });
 
     it('works', async function() {
-      this.timeout(10000);
       const tx = await steem.broadcast.voteAsync(
         postingWif,
         username,
@@ -160,7 +159,6 @@ describe('steem.broadcast:', () => {
     });
 
     it('works with callbacks', function(done) {
-      this.timeout(10000);
       steem.broadcast.vote(
         postingWif,
         username,
@@ -185,12 +183,10 @@ describe('steem.broadcast:', () => {
 
   describe('customJson', () => {
     before(function() {
-      this.timeout(10000);
       return Promise.delay(3000);
     });
 
     it('works', async function() {
-      this.timeout(10000);
       const tx = await steem.broadcast.customJsonAsync(
         postingWif,
         [],

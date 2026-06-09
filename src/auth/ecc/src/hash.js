@@ -1,58 +1,41 @@
-const createHash = require('create-hash');
-const createHmac = require('create-hmac');
+// Hashing on @noble/hashes (pure JS, isomorphic — no Node `crypto`/`stream` deps).
+// Keeps the original Buffer-returning interface so the rest of the ecc layer is unchanged.
+import { sha256 as nobleSha256, sha512 as nobleSha512 } from '@noble/hashes/sha2.js';
+import { ripemd160 as nobleRipemd160, sha1 as nobleSha1 } from '@noble/hashes/legacy.js';
+import { hmac as nobleHmac } from '@noble/hashes/hmac.js';
 
-/** @arg {string|Buffer} data
-    @arg {string} [digest = null] - 'hex', 'binary' or 'base64'
-    @return {string|Buffer} - Buffer when digest is null, or string
-*/
-function sha1(data, encoding) {
-    return createHash('sha1').update(data).digest(encoding)
+function toBytes(data) {
+  if (data == null) return new Uint8Array(0);
+  if (typeof data === 'string') return new TextEncoder().encode(data);
+  return Uint8Array.from(data); // Buffer / Uint8Array / number[]
 }
 
-/** @arg {string|Buffer} data
-    @arg {string} [digest = null] - 'hex', 'binary' or 'base64'
-    @return {string|Buffer} - Buffer when digest is null, or string
-*/
-function sha256(data, encoding) {
-    return createHash('sha256').update(data).digest(encoding)
+function digest(bytes, encoding) {
+  const buf = Buffer.from(bytes);
+  return encoding ? buf.toString(encoding) : buf;
 }
 
-/** @arg {string|Buffer} data
-    @arg {string} [digest = null] - 'hex', 'binary' or 'base64'
-    @return {string|Buffer} - Buffer when digest is null, or string
-*/
-function sha512(data, encoding) {
-    return createHash('sha512').update(data).digest(encoding)
+/** @arg {string|Buffer} data @arg {string} [encoding] 'hex'|'base64'|… @return {string|Buffer} */
+export function sha1(data, encoding) {
+  return digest(nobleSha1(toBytes(data)), encoding);
 }
 
-function HmacSHA256(buffer, secret) {
-    return createHmac('sha256', secret).update(buffer).digest()
+/** @arg {string|Buffer} data @arg {string} [encoding] @return {string|Buffer} */
+export function sha256(data, encoding) {
+  return digest(nobleSha256(toBytes(data)), encoding);
 }
 
-function ripemd160(data) {
-    return createHash('rmd160').update(data).digest()
+/** @arg {string|Buffer} data @arg {string} [encoding] @return {string|Buffer} */
+export function sha512(data, encoding) {
+  return digest(nobleSha512(toBytes(data)), encoding);
 }
 
-// function hash160(buffer) {
-//   return ripemd160(sha256(buffer))
-// }
-// 
-// function hash256(buffer) {
-//   return sha256(sha256(buffer))
-// }
-
-// 
-// function HmacSHA512(buffer, secret) {
-//   return crypto.createHmac('sha512', secret).update(buffer).digest()
-// }
-
-module.exports = {
-    sha1: sha1,
-    sha256: sha256,
-    sha512: sha512,
-    HmacSHA256: HmacSHA256,
-    ripemd160: ripemd160
-    // hash160: hash160,
-    // hash256: hash256,
-    // HmacSHA512: HmacSHA512
+export function HmacSHA256(buffer, secret) {
+  return digest(nobleHmac(nobleSha256, toBytes(secret), toBytes(buffer)));
 }
+
+export function ripemd160(data) {
+  return digest(nobleRipemd160(toBytes(data)));
+}
+
+export default { sha1, sha256, sha512, HmacSHA256, ripemd160 };

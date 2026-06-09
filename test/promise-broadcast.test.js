@@ -8,9 +8,10 @@ const postingWif = password
   ? steem.auth.toWif(username, password, 'posting')
   : '5JRaypasxMx1L97ZUX7YuC5Psb5EAbF821kkAGtBj7xCJFQcbLg';
 
-describe('steem.broadcast: Promise Support', () => {
+const describeLive = process.env.STEEM_LIVE === '1' ? describe : describe.skip;
+
+describeLive('steem.broadcast: Promise Support', () => {
   it('should support Promises without Async suffix', function() {
-    this.timeout(10000);
     const votePromise = steem.broadcast.vote(
       postingWif,
       username,
@@ -34,7 +35,6 @@ describe('steem.broadcast: Promise Support', () => {
   });
   
   it('should still support callbacks', function(done) {
-    this.timeout(10000);
     steem.broadcast.vote(
       postingWif,
       username,
@@ -57,7 +57,6 @@ describe('steem.broadcast: Promise Support', () => {
   });
   
   it('should support direct Promise on send method', function() {
-    this.timeout(10000);
     const operations = [['vote', {
       voter: username,
       author: 'yamadapc',

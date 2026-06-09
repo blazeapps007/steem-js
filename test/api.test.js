@@ -1,12 +1,12 @@
-require('babel-polyfill');
 import assert from 'assert';
 import should from 'should';
 import testPost from './test-post.json';
 import steem from '../src';
 import api from '../src/api';
 
-describe('steem.api:', function () {
-  this.timeout(30 * 1000);
+const describeLive = process.env.STEEM_LIVE === '1' ? describe : describe.skip;
+
+describeLive('steem.api:', () => {
 
   describe('setOptions', () => {
     it('works', () => {

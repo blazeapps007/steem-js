@@ -6,7 +6,9 @@ const username = process.env.STEEM_USERNAME || 'guest123';
 const password = process.env.STEEM_PASSWORD;
 const activeWif = steem.auth.toWif(username, password, 'active');
 
-describe('steem.hf20-accounts:', () => {
+const describeLive = process.env.STEEM_LIVE === '1' ? describe : describe.skip;
+
+describeLive('steem.hf20-accounts:', () => {
   it('has generated methods', () => {
     should.exist(steem.broadcast.claimAccount);
     should.exist(steem.broadcast.createClaimedAccount);

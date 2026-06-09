@@ -1,40 +1,29 @@
-var BigInteger = require('bigi');
-var ecurve = require('ecurve');
-var secp256k1 = ecurve.getCurveByName('secp256k1');
-BigInteger = require('bigi');
-var base58 = require('bs58');
-var hash = require('./hash');
-var config = require('../../../config');
-var assert = require('assert');
+import base58 from 'bs58';
+import assert from 'assert';
+import hash from './hash.js';
+import config from '../../../config.js';
+import { Point, G, n, bytesToBig } from './curve.js';
 
-var G = secp256k1.G
-var n = secp256k1.n
+const NULL_HEX = '00'.repeat(33);
 
 class PublicKey {
 
-    /** @param {ecurve.Point} public key */
-    constructor(Q) { this.Q = Q; }
+    /** @param {Point} Q public key point (or null) */
+    constructor(Q, compressed = true) { this.Q = Q; this._compressed = compressed; }
 
     static fromBinary(bin) {
         return PublicKey.fromBuffer(new Buffer.from(bin, 'binary'));
     }
 
     static fromBuffer(buffer) {
-        if (
-            buffer.toString("hex") ===
-            "000000000000000000000000000000000000000000000000000000000000000000"
-        )
-            return new PublicKey(null);
-        return new PublicKey(ecurve.Point.decodeFrom(secp256k1, buffer));
+        if (buffer.toString('hex') === NULL_HEX) return new PublicKey(null);
+        const compressed = buffer.length === 33;
+        return new PublicKey(Point.fromBytes(Uint8Array.from(buffer)), compressed);
     }
 
-    toBuffer(compressed = this.Q ? this.Q.compressed : null) {
-        if (this.Q === null)
-            return Buffer.from(
-                "000000000000000000000000000000000000000000000000000000000000000000",
-                "hex"
-            );
-        return this.Q.getEncoded(compressed);
+    toBuffer(compressed = this.Q ? this._compressed : null) {
+        if (this.Q === null) return Buffer.from(NULL_HEX, 'hex');
+        return Buffer.from(this.Q.toBytes(compressed));
     }
 
     static fromPoint(point) {
@@ -42,121 +31,94 @@ class PublicKey {
     }
 
     toUncompressed() {
-        var buf = this.Q.getEncoded(false);
-        var point = ecurve.Point.decodeFrom(secp256k1, buf);
-        return PublicKey.fromPoint(point);
+        return new PublicKey(this.Q, false);
     }
 
     /** bts::blockchain::address (unique but not a full public key) */
     toBlockchainAddress() {
-        var pub_buf = this.toBuffer();
-        var pub_sha = hash.sha512(pub_buf);
+        const pub_buf = this.toBuffer();
+        const pub_sha = hash.sha512(pub_buf);
         return hash.ripemd160(pub_sha);
     }
 
     toString(address_prefix = config.get('address_prefix')) {
-        return this.toPublicKeyString(address_prefix)
+        return this.toPublicKeyString(address_prefix);
     }
 
-    /**
-        Full public key
-        {return} string
-    */
     toPublicKeyString(address_prefix = config.get('address_prefix')) {
-        if(this.pubdata) return address_prefix + this.pubdata
+        if (this.pubdata) return address_prefix + this.pubdata;
         const pub_buf = this.toBuffer();
         const checksum = hash.ripemd160(pub_buf);
         const addy = Buffer.concat([pub_buf, checksum.slice(0, 4)]);
-        this.pubdata = base58.encode(addy)
+        this.pubdata = base58.encode(addy);
         return address_prefix + this.pubdata;
     }
 
-    /**
-        @arg {string} public_key - like STMXyz...
-        @arg {string} address_prefix - like STM
-        @return PublicKey or `null` (if the public_key string is invalid)
-        @deprecated fromPublicKeyString (use fromString instead)
-    */
+    /** @deprecated use fromString instead. @return PublicKey or null */
     static fromString(public_key, address_prefix = config.get('address_prefix')) {
         try {
-            return PublicKey.fromStringOrThrow(public_key, address_prefix)
+            return PublicKey.fromStringOrThrow(public_key, address_prefix);
         } catch (e) {
             return null;
         }
     }
 
-    /**
-        @arg {string} public_key - like STMXyz...
-        @arg {string} address_prefix - like STM
-        @throws {Error} if public key is invalid
-        @return PublicKey
-    */
+    /** @throws {Error} if public key is invalid. @return PublicKey */
     static fromStringOrThrow(public_key, address_prefix = config.get('address_prefix')) {
-        var prefix = public_key.slice(0, address_prefix.length);
+        const prefix = public_key.slice(0, address_prefix.length);
         assert.equal(
             address_prefix, prefix,
             `Expecting key to begin with ${address_prefix}, instead got ${prefix}`);
-            public_key = public_key.slice(address_prefix.length);
+        public_key = public_key.slice(address_prefix.length);
 
         public_key = new Buffer.from(base58.decode(public_key), 'binary');
-        var checksum = public_key.slice(-4);
+        const checksum = public_key.slice(-4);
         public_key = public_key.slice(0, -4);
-        var new_checksum = hash.ripemd160(public_key);
+        let new_checksum = hash.ripemd160(public_key);
         new_checksum = new_checksum.slice(0, 4);
         assert.deepEqual(checksum, new_checksum, 'Checksum did not match');
         return PublicKey.fromBuffer(public_key);
     }
 
     toAddressString(address_prefix = config.get('address_prefix')) {
-        var pub_buf = this.toBuffer();
-        var pub_sha = hash.sha512(pub_buf);
-        var addy = hash.ripemd160(pub_sha);
-        var checksum = hash.ripemd160(addy);
+        const pub_buf = this.toBuffer();
+        const pub_sha = hash.sha512(pub_buf);
+        let addy = hash.ripemd160(pub_sha);
+        const checksum = hash.ripemd160(addy);
         addy = Buffer.concat([addy, checksum.slice(0, 4)]);
         return address_prefix + base58.encode(addy);
     }
 
     toPtsAddy() {
-        var pub_buf = this.toBuffer();
-        var pub_sha = hash.sha256(pub_buf);
-        var addy = hash.ripemd160(pub_sha);
-        addy = Buffer.concat([new Buffer.from([0x38]), addy]); //version 56(decimal)
+        const pub_buf = this.toBuffer();
+        const pub_sha = hash.sha256(pub_buf);
+        let addy = hash.ripemd160(pub_sha);
+        addy = Buffer.concat([new Buffer.from([0x38]), addy]); // version 56(decimal)
 
-        var checksum = hash.sha256(addy);
+        let checksum = hash.sha256(addy);
         checksum = hash.sha256(checksum);
 
         addy = Buffer.concat([addy, checksum.slice(0, 4)]);
         return base58.encode(addy);
     }
 
-    child( offset ) {
+    child(offset) {
+        assert(Buffer.isBuffer(offset), 'Buffer required: offset');
+        assert.equal(offset.length, 32, 'offset length');
 
-        assert(Buffer.isBuffer(offset), "Buffer required: offset")
-        assert.equal(offset.length, 32, "offset length")
+        offset = Buffer.concat([this.toBuffer(), offset]);
+        offset = hash.sha256(offset);
 
-        offset = Buffer.concat([ this.toBuffer(), offset ])
-        offset = hash.sha256( offset )
+        const c = bytesToBig(offset);
+        if (c >= n) throw new Error('Child offset went out of bounds, try again');
 
-        let c = BigInteger.fromBuffer( offset )
+        const cG = G.multiply(c);
+        const Qprime = this.Q.add(cG);
 
-        if (c.compareTo(n) >= 0)
-            throw new Error("Child offset went out of bounds, try again")
+        if (Qprime.is0()) throw new Error('Child offset derived to an invalid key, try again');
 
-
-        let cG = G.multiply(c)
-        let Qprime = this.Q.add(cG)
-
-        if( secp256k1.isInfinity(Qprime) )
-            throw new Error("Child offset derived to an invalid key, try again")
-
-        return PublicKey.fromPoint(Qprime)
+        return PublicKey.fromPoint(Qprime);
     }
-
-    // toByteBuffer() {
-    //     var b = new ByteBuffer(ByteBuffer.DEFAULT_CAPACITY, ByteBuffer.LITTLE_ENDIAN);
-    //     this.appendByteBuffer(b);
-    //     return b.copy(0, b.offset);
-    // }
 
     static fromHex(hex) {
         return PublicKey.fromBuffer(new Buffer.from(hex, 'hex'));
@@ -169,9 +131,6 @@ class PublicKey {
     static fromStringHex(hex) {
         return PublicKey.fromString(new Buffer.from(hex, 'hex'));
     }
-
-    /* </HEX> */
 }
 
-
-module.exports = PublicKey;
+export default PublicKey;

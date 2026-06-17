@@ -78,7 +78,9 @@ module.exports = _my = {
     },
 
     is_digits: is_digits=function(value){
-        if (typeof value === "numeric") { return true; }
+        // A JS number is always all-digits per the regex below (it coerces to string),
+        // so no special-case is needed. (The old `typeof value === "numeric"` was dead
+        // code — `typeof` never returns "numeric" — and triggered an esbuild warning.)
         return /^[0-9]+$/.test(value);
     },
 

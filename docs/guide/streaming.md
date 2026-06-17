@@ -13,8 +13,8 @@ All four accept an optional `mode` of `'head'` (default) or `'irreversible'`. Al
 below assume:
 
 ```js
-import steem from '@steemit/steem-js';
-// CommonJS: const steem = require('@steemit/steem-js');
+import steem from '@blazeapps/steem';
+// CommonJS: const steem = require('@blazeapps/steem');
 ```
 
 ## streamBlockNumber

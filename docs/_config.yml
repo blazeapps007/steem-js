@@ -20,7 +20,7 @@ aux_links:
 
 nav_external_links:
   - title: steem-js on npm
-    url: https://www.npmjs.com/package/@steemit/steem-js
+    url: https://www.npmjs.com/package/@blazeapps/steem
 
 # Jekyll needs the remote-theme plugin; the github-pages gem bundles it.
 plugins:

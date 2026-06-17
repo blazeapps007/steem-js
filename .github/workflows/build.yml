@@ -22,7 +22,11 @@ jobs:
           node-version: ${{ matrix.node }}
       - run: npm install
       - run: npm run build
-      - run: npm test
+      # Vitest 4 requires Node >= 20 (uses node:util.styleText). The library
+      # itself still supports Node 18 — proven by the byte-exact smoke test below.
+      - name: Unit tests
+        if: matrix.node != 18
+        run: npm test
       - name: Node smoke (built bundle, byte-exact)
         run: node scripts/smoke.mjs
       # Live-network integration tests (opt-in)
@@ -48,3 +52,34 @@ jobs:
           deno-version: v2.x
       - name: Deno smoke (built ESM bundle)
         run: deno run --allow-read --node-modules-dir scripts/smoke.mjs
+
+  # Publish to npm only after the full matrix + deno smoke pass, only on a push
+  # to a main branch, and only when package.json's version isn't already on npm
+  # (npm forbids republishing the same version). Bump the version to release.
+  publish:
+    needs: [test, deno-smoke]
+    if: >-
+      github.event_name == 'push' &&
+      (github.ref == 'refs/heads/BlazeDevelopment' || github.ref == 'refs/heads/master')
+    runs-on: ubuntu-latest
+    name: publish (npm)
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: 'https://registry.npmjs.org'
+      - run: npm install
+      - run: npm run build
+      - name: Publish if version is new
+        run: |
+          NAME=$(node -p "require('./package.json').name")
+          VER=$(node -p "require('./package.json').version")
+          if npm view "$NAME@$VER" version >/dev/null 2>&1; then
+            echo "$NAME@$VER already on npm — skipping publish."
+          else
+            echo "Publishing $NAME@$VER…"
+            npm publish --access public
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

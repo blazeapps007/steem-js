@@ -1,5 +1,5 @@
 {
-  "name": "@steemit/steem-js",
+  "name": "@blazeapps/steem",
   "version": "0.8.0",
   "description": "JavaScript library for the Steem blockchain (isomorphic: Node, browser, edge, Deno)",
   "type": "commonjs",
@@ -76,7 +76,7 @@
     "should": "^13.2.3",
     "tsup": "^8.5.1",
     "typescript": "^6.0.3",
-    "vitest": "^3.2.4"
+    "vitest": "^4.1.8"
   },
   "resolutions": {
     "json5": "^1.0.2",

@@ -13,8 +13,8 @@ decryption uses the recipient's (or sender's) private memo key.
 All examples below assume:
 
 ```js
-import steem from '@steemit/steem-js';
-// CommonJS: const steem = require('@steemit/steem-js');
+import steem from '@blazeapps/steem';
+// CommonJS: const steem = require('@blazeapps/steem');
 ```
 
 Memo crypto is AES-256-CBC via `@noble/ciphers` — pure JS, so encode/decode work on every

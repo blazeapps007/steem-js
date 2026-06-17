@@ -125,8 +125,8 @@ function generateApi() {
   body +=
     `All examples assume:\n\n` +
     '```js\n' +
-    "import steem from '@steemit/steem-js';\n" +
-    "// CommonJS: const steem = require('@steemit/steem-js');\n" +
+    "import steem from '@blazeapps/steem';\n" +
+    "// CommonJS: const steem = require('@blazeapps/steem');\n" +
     '```\n\n';
   body +=
     `Each method has four call styles, created automatically:\n\n` +
@@ -182,8 +182,8 @@ function generateBroadcast() {
   body +=
     `All examples assume:\n\n` +
     '```js\n' +
-    "import steem from '@steemit/steem-js';\n" +
-    "// CommonJS: const steem = require('@steemit/steem-js');\n" +
+    "import steem from '@blazeapps/steem';\n" +
+    "// CommonJS: const steem = require('@blazeapps/steem');\n" +
     '```\n\n';
   body +=
     `Every method accepts a trailing callback **or** returns a Promise if you omit it ` +

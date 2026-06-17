@@ -11,8 +11,8 @@ Write operations. These sign a transaction and broadcast it to the network — t
 All examples assume:
 
 ```js
-import steem from '@steemit/steem-js';
-// CommonJS: const steem = require('@steemit/steem-js');
+import steem from '@blazeapps/steem';
+// CommonJS: const steem = require('@blazeapps/steem');
 ```
 
 Every method accepts a trailing callback **or** returns a Promise if you omit it (an `Async` suffix variant also exists). The first argument is the signing key (`wif`); the **Roles** line lists which key roles may authorize the operation — pass a WIF for one of them.

@@ -34,11 +34,13 @@ ships small and typed.
 The library no longer assumes Node. It avoids Node-builtin module imports at runtime, uses
 the global `fetch`/`WebSocket`, and bundles a pure-JS `Buffer` so it works where there is no
 `Buffer` global. The result: the **same package** runs on Node, browsers, Cloudflare Workers,
-Vercel Edge, and Deno. See [Runtimes](guide/runtimes) for per-platform examples.
+Vercel Edge, and Deno. See [Runtimes](guide/runtimes) for per-platform examples, plus the
+dedicated [Cloudflare Workers](guide/cloudflare-workers) and [Deno & Deno Deploy](guide/deno)
+guides for edge deployments.
 
 ```js
 // identical code on Node, Vite, a Worker, or Deno:
-import steem from '@steemit/steem-js';
+import steem from '@blazeapps/steem';
 steem.api.setOptions({ url: 'https://api.steemit.com' });
 const [account] = await steem.api.getAccountsAsync(['ned']);
 ```
@@ -66,13 +68,13 @@ const pub = steem.auth.wifToPublic(wif);
 ## ESM + CJS + CDN, with an `exports` map
 
 ```js
-import steem from '@steemit/steem-js';            // ESM (bundlers, Node, edge, Deno)
-import { api, broadcast } from '@steemit/steem-js'; // named, tree-shakeable
-const steem = require('@steemit/steem-js');         // CommonJS
+import steem from '@blazeapps/steem';            // ESM (bundlers, Node, edge, Deno)
+import { api, broadcast } from '@blazeapps/steem'; // named, tree-shakeable
+const steem = require('@blazeapps/steem');         // CommonJS
 ```
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@steemit/steem-js/dist/steem.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@blazeapps/steem/dist/steem.min.js"></script>
 ```
 
 ## Native fetch, optional WebSocket
@@ -84,7 +86,7 @@ const steem = require('@steemit/steem-js');         // CommonJS
 ## Types included
 
 ```ts
-import steem, { type SteemOptions } from '@steemit/steem-js';
+import steem, { type SteemOptions } from '@blazeapps/steem';
 const opts: SteemOptions = { url: 'https://api.steemit.com', useAppbaseApi: true };
 steem.api.setOptions(opts);
 const a = await steem.api.getAccountsAsync(['ned']); // autocompleted

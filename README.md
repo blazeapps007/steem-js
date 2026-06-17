@@ -28,9 +28,9 @@ steem.api.getAccounts(['ned', 'dan'], function(err, response){
 ```
 
 ## CDN
-https://cdn.jsdelivr.net/npm/steem/dist/steem.min.js<br/>
+https://cdn.jsdelivr.net/npm/@blazeapps/steem/dist/steem.min.js<br/>
 ```html
-<script src="https://cdn.jsdelivr.net/npm/steem/dist/steem.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@blazeapps/steem/dist/steem.min.js"></script>
 ```
 
 ## Webpack
@@ -39,7 +39,7 @@ https://cdn.jsdelivr.net/npm/steem/dist/steem.min.js<br/>
 ## Server
 ## Install
 ```
-$ npm install steem --save
+$ npm install @blazeapps/steem --save
 ```
 
 ## RPC Servers
@@ -48,7 +48,7 @@ https://api.steemit.com By Default<br/>
 ## Examples
 ### Broadcast Vote
 ```js
-var steem = require('steem');
+var steem = require('@blazeapps/steem');
 
 var wif = steem.auth.toWif(username, password, 'posting');
 steem.broadcast.vote(wif, voter, author, permlink, weight, function(err, result) {
@@ -58,7 +58,7 @@ steem.broadcast.vote(wif, voter, author, permlink, weight, function(err, result)
 
 ### Broadcast Vote with Promises
 ```js
-var steem = require('steem');
+var steem = require('@blazeapps/steem');
 
 var wif = steem.auth.toWif(username, password, 'posting');
 // Using Promises

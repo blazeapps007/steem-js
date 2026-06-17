@@ -12,7 +12,7 @@ Vercel Edge), and Deno**. Pure-JS crypto (`@noble`), ESM + CJS + a CDN bundle, a
 TypeScript types.
 
 ```sh
-npm install @steemit/steem-js
+npm install @blazeapps/steem
 ```
 
 > Installing the modernized build before it's published to npm? Pull it straight from the
@@ -22,7 +22,7 @@ npm install @steemit/steem-js
 > ```
 
 ```js
-import steem from '@steemit/steem-js';
+import steem from '@blazeapps/steem';
 
 // Read (Promise or callback)
 const [account] = await steem.api.getAccountsAsync(['ned']);
@@ -36,8 +36,9 @@ await steem.broadcast.vote(wif, voter, author, permlink, 10000);
 
 This release is a ground-up modernization that keeps the **public API identical** while
 making the library fast, small, typed, and runnable everywhere. See
-**[What's New](whats-new)** for the full story, and **[Runtimes](guide/runtimes)** for
-copy-paste setups for Node, Vite, the browser, Cloudflare Workers, Vercel Edge, and Deno.
+**[What's New](whats-new)** for the full story, the **[Runtimes](guide/runtimes)** overview for
+copy-paste setups, and the dedicated **[Cloudflare Workers](guide/cloudflare-workers)** and
+**[Deno & Deno Deploy](guide/deno)** guides for edge deployments.
 
 - **Isomorphic** — no `Buffer`/`window`/Node-builtin assumptions; runs on edge & Deno.
 - **Modern crypto** — `@noble/curves` + `@noble/hashes` + `@noble/ciphers` (zero native deps).
@@ -49,7 +50,7 @@ copy-paste setups for Node, Vite, the browser, Cloudflare Workers, Vercel Edge, 
 
 ## The library at a glance
 
-`import steem from '@steemit/steem-js'` (or `const steem = require(...)`) gives an object
+`import steem from '@blazeapps/steem'` (or `const steem = require(...)`) gives an object
 with these namespaces:
 
 | Namespace | What it does | Docs |
@@ -67,11 +68,37 @@ The `api` and `broadcast` references are **generated from the library's own sour
 [`operations.js`](https://github.com/blazeapps007/steem-js/blob/master/src/broadcast/operations.js)),
 so they always list every method in the installed version.
 
+## Run on any runtime
+
+One package, every JavaScript runtime — no polyfills, no `Buffer`, no Node-builtin shims.
+
+| Runtime | Guide |
+|---|---|
+| 🟢 Node.js (ESM & CommonJS) | [Runtimes → Node](guide/runtimes#nodejs-esm) |
+| ⚡ Vite / React / Vue / Svelte | [Runtimes → Vite](guide/runtimes#vite--react--vue--svelte) |
+| 🌐 Browser via `<script>` / CDN | [Runtimes → Browser](guide/runtimes#browser-via-script--cdn) |
+| ☁️ **Cloudflare Workers** | [Cloudflare Workers](guide/cloudflare-workers) — secrets, signing, KV cache, cron |
+| ▲ Vercel Edge Functions | [Runtimes → Vercel Edge](guide/runtimes#vercel-edge-functions) |
+| 🦕 **Deno & Deno Deploy** | [Deno](guide/deno) — permissions, edge functions, KV, testing |
+
 ## Where to go next
 
-- **[What's New](whats-new)** — everything that changed and why.
-- **[Install](guide/install)** & **[Runtimes](guide/runtimes)** — set up on your platform.
-- **[TypeScript](guide/typescript)** — typed usage.
-- Reading data → **[API reference](reference/api)**.
+**Get started**
+- **[Install](guide/install)** — npm, pnpm, yarn, Deno, CDN.
+- **[Runtimes](guide/runtimes)** — copy-paste setup for your platform.
+- **[Configuration](guide/configuration)** — endpoints, transports, testnet.
+- **[TypeScript](guide/typescript)** — typed usage with the shipped declarations.
+
+**Deploy to the edge**
+- **[Cloudflare Workers](guide/cloudflare-workers)** — full edge guide with a worked vote endpoint.
+- **[Deno & Deno Deploy](guide/deno)** — permissions model and `Deno.serve` edge functions.
+
+**Use the API**
+- Reading data → **[API reference](reference/api)** · concepts in the guides below.
 - Writing to the chain → **[Broadcasting](guide/broadcasting)** + **[Broadcast reference](reference/broadcast)**.
 - Following the chain live → **[Streaming](guide/streaming)**.
+- Keys & signing → **[Auth](guide/auth)** · encrypted memos → **[Memo](guide/memo)**.
+- Display helpers → **[Formatter](guide/formatter)** · validation → **[Utils](guide/utils)**.
+
+**Background**
+- **[What's New](whats-new)** — everything that changed and why.

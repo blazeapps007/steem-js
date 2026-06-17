@@ -116,7 +116,7 @@ The default export is a ready-to-use singleton (`steem.api`). To run more than o
 connection, construct your own with the `Steem` class (attached as `steem.api.Steem`):
 
 ```js
-import steem from '@steemit/steem-js';
+import steem from '@blazeapps/steem';
 
 const Node = steem.api.Steem;
 const node = new Node({ url: 'https://api.steemit.com' });

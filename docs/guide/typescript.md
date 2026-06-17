@@ -12,7 +12,7 @@ declared (108 API methods + 63 broadcast operations + 4 auth helpers), so you ge
 autocomplete and arity checking.
 
 ```ts
-import steem from '@steemit/steem-js';
+import steem from '@blazeapps/steem';
 
 // Promise variants are typed as Promise<any>; callbacks as (err, result) => void.
 const accounts = await steem.api.getAccountsAsync(['ned', 'dan']);
@@ -28,7 +28,7 @@ import steem, {
   api,            // also available as named exports
   broadcast,
   auth,
-} from '@steemit/steem-js';
+} from '@blazeapps/steem';
 
 import type {
   SteemApi,
@@ -37,7 +37,7 @@ import type {
   SteemOptions,
   Callback,
   StreamMode,
-} from '@steemit/steem-js';
+} from '@blazeapps/steem';
 
 function configure(opts: SteemOptions) {
   steem.api.setOptions(opts);
@@ -47,7 +47,7 @@ function configure(opts: SteemOptions) {
 ## Callback style is typed too
 
 ```ts
-import type { Callback } from '@steemit/steem-js';
+import type { Callback } from '@blazeapps/steem';
 
 const cb: Callback = (err, result) => {
   if (err) return console.error(err);

@@ -7,8 +7,8 @@ nav_order: 1
 # Install
 
 ```sh
-npm install @steemit/steem-js
-# or: pnpm add @steemit/steem-js   /   yarn add @steemit/steem-js
+npm install @blazeapps/steem
+# or: pnpm add @blazeapps/steem   /   yarn add @blazeapps/steem
 ```
 
 Modernized build not yet on npm? Install from the fork branch:
@@ -25,7 +25,7 @@ npm install github:blazeapps007/steem-js#BlazeDevelopment
 | Browsers (bundled) | ✅ | Via Vite/webpack/Rollup/esbuild — no Node polyfills needed |
 | Browser `<script>` (CDN) | ✅ | Minified IIFE exposing a global `steem` |
 | Cloudflare Workers / Vercel Edge | ✅ | No `Buffer`/Node builtins required at runtime |
-| Deno | ✅ | `import … from 'npm:@steemit/steem-js'` |
+| Deno | ✅ | `import … from 'npm:@blazeapps/steem'` |
 
 For platform-specific setups and examples, see **[Runtimes](runtimes)**.
 
@@ -44,19 +44,19 @@ The package ships three builds plus types, selected automatically via the `expor
 
 ```js
 // ESM — default import (the full steem object)
-import steem from '@steemit/steem-js';
+import steem from '@blazeapps/steem';
 
 // ESM — named imports (tree-shakeable)
-import { api, broadcast, auth } from '@steemit/steem-js';
+import { api, broadcast, auth } from '@blazeapps/steem';
 
 // CommonJS
-const steem = require('@steemit/steem-js');
+const steem = require('@blazeapps/steem');
 ```
 
 ## Browser via CDN
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@steemit/steem-js/dist/steem.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@blazeapps/steem/dist/steem.min.js"></script>
 <script>
   steem.api.getAccounts(['ned', 'dan'], function (err, accounts) {
     console.log(err, accounts);
@@ -69,7 +69,7 @@ const steem = require('@steemit/steem-js');
 Types are bundled — no `@types/...` package needed. See the [TypeScript guide](typescript).
 
 ```ts
-import steem from '@steemit/steem-js';
+import steem from '@blazeapps/steem';
 const [account] = await steem.api.getAccountsAsync(['ned']); // fully typed
 ```
 

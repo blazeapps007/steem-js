@@ -12,8 +12,8 @@ instance, so the helpers that need network data work against your configured end
 All examples below assume:
 
 ```js
-import steem from '@steemit/steem-js';
-// CommonJS: const steem = require('@steemit/steem-js');
+import steem from '@blazeapps/steem';
+// CommonJS: const steem = require('@blazeapps/steem');
 ```
 
 ## reputation

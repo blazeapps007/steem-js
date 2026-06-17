@@ -29,7 +29,7 @@ callback. The examples below use `async/await`.
 `package.json` with `"type": "module"`, or a `.mjs` file:
 
 ```js
-import steem from '@steemit/steem-js';
+import steem from '@blazeapps/steem';
 
 const [account] = await steem.api.getAccountsAsync(['ned']);
 console.log(account.name, account.balance);
@@ -43,7 +43,7 @@ console.log(tx.id);
 ## Node.js (CommonJS)
 
 ```js
-const steem = require('@steemit/steem-js');
+const steem = require('@blazeapps/steem');
 
 steem.api.getAccounts(['ned'], (err, accounts) => {
   if (err) throw err;
@@ -58,14 +58,14 @@ gone).
 
 ```js
 // src/steem.js
-import steem from '@steemit/steem-js';
+import steem from '@blazeapps/steem';
 export default steem;
 ```
 
 ```jsx
 // React example
 import { useEffect, useState } from 'react';
-import steem from '@steemit/steem-js';
+import steem from '@blazeapps/steem';
 
 export function Account({ name }) {
   const [acc, setAcc] = useState(null);
@@ -86,7 +86,7 @@ export function Account({ name }) {
 The IIFE build exposes a global `steem`:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@steemit/steem-js/dist/steem.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@blazeapps/steem/dist/steem.min.js"></script>
 <script>
   steem.api.getDynamicGlobalProperties(function (err, props) {
     console.log(props.head_block_number);
@@ -98,7 +98,7 @@ The IIFE build exposes a global `steem`:
 
 ```js
 // src/index.js
-import steem from '@steemit/steem-js';
+import steem from '@blazeapps/steem';
 
 export default {
   async fetch(request) {
@@ -121,11 +121,14 @@ compatibility_date = "2024-01-01"
 
 No `node_compat` / `nodejs_compat` flag is required.
 
+> **Full guide:** see [Cloudflare Workers](cloudflare-workers) for secrets, signing &
+> broadcasting, Cache API / KV caching, cron-triggered Workers, and a complete vote endpoint.
+
 ## Vercel Edge Functions
 
 ```js
 // app/api/account/route.js  (Next.js App Router)
-import steem from '@steemit/steem-js';
+import steem from '@blazeapps/steem';
 
 export const runtime = 'edge';
 
@@ -140,14 +143,17 @@ export async function GET() {
 
 ```ts
 // main.ts  —  deno run --allow-net main.ts
-import steem from 'npm:@steemit/steem-js';
+import steem from 'npm:@blazeapps/steem';
 
 steem.api.setOptions({ url: 'https://api.steemit.com' });
 const [account] = await steem.api.getAccountsAsync(['ned']);
 console.log(account.balance);
 ```
 
-To pin a version: `import steem from 'npm:@steemit/steem-js@^1';`
+To pin a version: `import steem from 'npm:@blazeapps/steem@^1';`
+
+> **Full guide:** see [Deno & Deno Deploy](deno) for the permissions model (no `--allow-env`
+> needed), edge functions with `Deno.serve`, import maps, Deno KV caching, and testing.
 
 ## WebSocket transport
 

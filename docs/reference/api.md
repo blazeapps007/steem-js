@@ -11,8 +11,8 @@ Read calls against a Steem RPC node. Every method below is generated from [`src/
 All examples assume:
 
 ```js
-import steem from '@steemit/steem-js';
-// CommonJS: const steem = require('@steemit/steem-js');
+import steem from '@blazeapps/steem';
+// CommonJS: const steem = require('@blazeapps/steem');
 ```
 
 Each method has four call styles, created automatically:

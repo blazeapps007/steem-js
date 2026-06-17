@@ -6,10 +6,18 @@ import { randomBytes } from '@noble/hashes/utils.js';
 const HASH_POWER_MILLS = 250;
 
 let entropyPos = 0, entropyCount = 0;
-const entropyArray = Buffer.from(randomBytes(101));
+let _entropyArray = null;
+
+// Seed lazily so merely importing the library never consumes entropy — importing
+// must not require a CSPRNG (keeps load side-effect-free and edge/Node-18 safe).
+function entropy() {
+  if (_entropyArray === null) _entropyArray = Buffer.from(randomBytes(101));
+  return _entropyArray;
+}
 
 export function addEntropy(...ints) {
   entropyCount++;
+  const entropyArray = entropy();
   for (const i of ints) {
     const pos = entropyPos++ % 101;
     const i2 = entropyArray[pos] += i;
@@ -45,7 +53,7 @@ export function get_random_key(entropy) {
 
 /** Isomorphic entropy gathering (WebCrypto-backed randomBytes; no window/navigator). */
 export function browserEntropy() {
-  let entropyStr = Array.from(entropyArray).join();
+  let entropyStr = Array.from(entropy()).join();
   entropyStr += new Date().toString() + ' ' + Buffer.from(randomBytes(32)).toString('hex');
   return entropyStr;
 }

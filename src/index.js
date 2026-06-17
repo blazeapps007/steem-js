@@ -1,3 +1,4 @@
+import { ensureWebCrypto } from './_shims/crypto-shim.js';
 import api from './api/index.js';
 import auth from './auth/index.js';
 import broadcast from './broadcast/index.js';
@@ -5,6 +6,9 @@ import formatterFactory from './formatter.js';
 import memo from './auth/memo.js';
 import config from './config.js';
 import * as utils from './utils.js';
+
+// Ensure globalThis.crypto exists (Node 18) before any randomBytes call.
+ensureWebCrypto();
 
 const formatter = formatterFactory(api);
 

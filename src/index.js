@@ -1,4 +1,3 @@
-import { ensureWebCrypto } from './_shims/crypto-shim.js';
 import api from './api/index.js';
 import auth from './auth/index.js';
 import broadcast from './broadcast/index.js';
@@ -7,8 +6,8 @@ import memo from './auth/memo.js';
 import config from './config.js';
 import * as utils from './utils.js';
 
-// Ensure globalThis.crypto exists (Node 18) before any randomBytes call.
-ensureWebCrypto();
+// Note: a build-time banner (see tsup.config.js) ensures globalThis.crypto exists on
+// runtimes that lack it (e.g. Node 18) before any module code runs.
 
 const formatter = formatterFactory(api);
 

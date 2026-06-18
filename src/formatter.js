@@ -1,7 +1,16 @@
-import get from "lodash/get";
-import { key_utils } from "./auth/ecc";
+import { key_utils } from "./auth/ecc/index.js";
 
-module.exports = steemAPI => {
+// Minimal lodash.get replacement: deep-read `path` (array) with a default.
+function get(obj, path, def) {
+  let o = obj;
+  for (let i = 0; i < path.length; i++) {
+    if (o == null) return def;
+    o = o[path[i]];
+  }
+  return o === undefined ? def : o;
+}
+
+export default steemAPI => {
   function numberWithCommas(x) {
     return x.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   }

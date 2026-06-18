@@ -1,5 +1,5 @@
-import Promise from 'bluebird';
 import EventEmitter from 'events';
+import { promisifyAll } from '../../_promise.js';
 
 export default class Transport extends EventEmitter {
   constructor(options = {}) {
@@ -29,4 +29,4 @@ export default class Transport extends EventEmitter {
   stop() {}
 }
 
-Promise.promisifyAll(Transport.prototype);
+promisifyAll(Transport.prototype);

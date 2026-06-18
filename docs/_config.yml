@@ -1,0 +1,33 @@
+title: Steem.js
+description: JavaScript library for the Steem blockchain
+remote_theme: just-the-docs/just-the-docs
+
+# Site URL config for blazeapps007.github.io/steem-js (override if deploying elsewhere).
+url: https://blazeapps007.github.io
+baseurl: /steem-js
+
+# just-the-docs options
+search_enabled: true
+search:
+  heading_level: 3
+  previews: 2
+heading_anchors: true
+color_scheme: dark
+
+aux_links:
+  GitHub:
+    - https://github.com/blazeapps007/steem-js
+
+nav_external_links:
+  - title: steem-js on npm
+    url: https://www.npmjs.com/package/@blazeapps/steem
+
+# Jekyll needs the remote-theme plugin; the github-pages gem bundles it.
+plugins:
+  - jekyll-remote-theme
+
+# Don't process repo files that aren't part of the site.
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - vendor

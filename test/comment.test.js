@@ -10,16 +10,16 @@ const postingWif = password
   ? steem.auth.toWif(username, password, 'posting')
   : '5JRaypasxMx1L97ZUX7YuC5Psb5EAbF821kkAGtBj7xCJFQcbLg';
 
-describe('steem.broadcast:', () => {
+const describeLive = process.env.STEEM_LIVE === '1' ? describe : describe.skip;
+
+describeLive('steem.broadcast:', () => {
 
   describe('comment with options', () => {
     before(function() {
-      this.timeout(10000);
       return Promise.delay(3000);
     });
 
     it('works', async function() {
-      this.timeout(10000);
       const permlink = steem.formatter.commentPermlink('siol', 'test');
       const operations = [
         ['comment',

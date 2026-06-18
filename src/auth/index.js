@@ -1,14 +1,11 @@
-var bigi = require('bigi'),
-	bs58 = require('bs58'),
-	ecurve = require('ecurve'),
-	Point = ecurve.Point,
-	secp256k1 = ecurve.getCurveByName('secp256k1'),
-	config = require('../config'),
-	operations = require('./serializer/src/operations'),
-	Signature = require('./ecc/src/signature'),
-	KeyPrivate = require('./ecc/src/key_private'),
-	PublicKey = require('./ecc/src/key_public'),
-  hash = require('./ecc/src/hash');
+import bs58 from 'bs58';
+import config from '../config.js';
+import operations from './serializer/src/operations.js';
+import Signature from './ecc/src/signature.js';
+import KeyPrivate from './ecc/src/key_private.js';
+import PublicKey from './ecc/src/key_public.js';
+import hash from './ecc/src/hash.js';
+import { G, bytesToBig } from './ecc/src/curve.js';
 
 var Auth = {};
 var transaction = operations.transaction;
@@ -35,10 +32,8 @@ Auth.generateKeys = function (name, password, roles) {
 		var seed = name + role + password;
 		var brainKey = seed.trim().split(/[\t\n\v\f\r ]+/).join(' ');
 		var hashSha256 = hash.sha256(brainKey);
-		var bigInt = bigi.fromBuffer(hashSha256);
-		var toPubKey = secp256k1.G.multiply(bigInt);
-		var point = new Point(toPubKey.curve, toPubKey.x, toPubKey.y, toPubKey.z);
-		var pubBuf = point.getEncoded(toPubKey.compressed);
+		var bigInt = bytesToBig(hashSha256);
+		var pubBuf = Buffer.from(G.multiply(bigInt).toBytes(true));
 		var checksum = hash.ripemd160(pubBuf);
 		var addy = Buffer.concat([pubBuf, checksum.slice(0, 4)]);
 		pubKeys[role] = config.get('address_prefix') + bs58.encode(addy);
@@ -119,4 +114,4 @@ Auth.signTransaction = function (trx, keys) {
 	return signed_transaction.toObject(Object.assign(trx, { signatures: signatures }))
 };
 
-module.exports = Auth;
+export default Auth;

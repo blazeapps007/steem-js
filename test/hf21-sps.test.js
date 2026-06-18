@@ -7,7 +7,9 @@ const username = process.env.STEEM_USERNAME || 'guest123';
 const password = process.env.STEEM_PASSWORD;
 const activeWif = steem.auth.toWif(username, password, 'active');
 
-describe('steem.hf21-accounts:', () => {
+const describeLive = process.env.STEEM_LIVE === '1' ? describe : describe.skip;
+
+describeLive('steem.hf21-accounts:', () => {
   it('has generated methods', () => {
     should.exist(steem.broadcast.createProposal);
     should.exist(steem.broadcast.updateProposalVotes);

@@ -1,11 +1,12 @@
-const ByteBuffer = require('bytebuffer');
-const assert = require('assert');
-const base58 = require('bs58');
-const ecc = require('./ecc');
+import ByteBuffer from './serializer/src/bytebuffer-lite.js';
+import assert from 'assert';
+import base58 from 'bs58';
+import ecc from './ecc/index.js';
+import serializer from './serializer/index.js';
+
 const Aes = ecc.Aes;
 const PrivateKey = ecc.PrivateKey;
 const PublicKey = ecc.PublicKey;
-const serializer = require('./serializer');
 const ops = serializer.ops;
 
 const encMemo = ops.encrypted_memo;
@@ -114,7 +115,5 @@ function checkEncryption() {
 const toPrivateObj = o => (o ? o.d ? o : PrivateKey.fromWif(o) : o/*null or undefined*/);
 const toPublicObj = o => (o ? o.Q ? o : PublicKey.fromString(o) : o/*null or undefined*/);
 
-module.exports = {
-  decode,
-  encode
-};
+export { decode, encode };
+export default { decode, encode };

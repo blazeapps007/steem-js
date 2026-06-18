@@ -1,42 +1,85 @@
-name: run-test-unit
+name: ci
 
 on:
   push:
-    branches:
-      - 'master'
+    branches: [master, BlazeDevelopment]
   pull_request:
     types: [opened, reopened, synchronize]
   workflow_dispatch:
 
 jobs:
-  node18:
+  test:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [18, 20, 22]
+    name: node ${{ matrix.node }}
     steps:
-      -
-        name: Checkout
-        uses: actions/checkout@v4
-      -
-        name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-      -
-        name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      -
-        name: Show Node and NPM version
-        run: |
-          node --version
-          npm --version
-      - 
-        name: Verify package.json
-        run: cat package.json
-      -
-        name: Build to run test unit
-        uses: docker/build-push-action@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          context: .
-          file: node-18.dockerfile
-          push: false
-          tags: test
-          no-cache: true
-          build-args: |
-            NODE_ENV=development
+          node-version: ${{ matrix.node }}
+      - run: npm install
+      - run: npm run build
+      # Vitest 4 requires Node >= 20 (uses node:util.styleText). The library
+      # itself still supports Node 18 — proven by the byte-exact smoke test below.
+      - name: Unit tests
+        if: matrix.node != 18
+        run: npm test
+      - name: Node smoke (built bundle, byte-exact)
+        run: node scripts/smoke.mjs
+      # Live-network integration tests (opt-in)
+      - name: Live integration tests
+        if: matrix.node == 20
+        run: npx vitest run
+        env:
+          STEEM_LIVE: '1'
+        continue-on-error: true
+
+  deno-smoke:
+    runs-on: ubuntu-latest
+    name: deno (edge-style runtime)
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install
+      - run: npm run build
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Deno smoke (built ESM bundle)
+        run: deno run --allow-read --node-modules-dir scripts/smoke.mjs
+
+  # Publish to npm only after the full matrix + deno smoke pass, only on a push
+  # to a main branch, and only when package.json's version isn't already on npm
+  # (npm forbids republishing the same version). Bump the version to release.
+  publish:
+    needs: [test, deno-smoke]
+    if: >-
+      github.event_name == 'push' &&
+      (github.ref == 'refs/heads/BlazeDevelopment' || github.ref == 'refs/heads/master')
+    runs-on: ubuntu-latest
+    name: publish (npm)
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: 'https://registry.npmjs.org'
+      - run: npm install
+      - run: npm run build
+      - name: Publish if version is new
+        run: |
+          NAME=$(node -p "require('./package.json').name")
+          VER=$(node -p "require('./package.json').version")
+          if npm view "$NAME@$VER" version >/dev/null 2>&1; then
+            echo "$NAME@$VER already on npm — skipping publish."
+          else
+            echo "Publishing $NAME@$VER…"
+            npm publish --access public
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

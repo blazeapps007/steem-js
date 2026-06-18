@@ -1,12 +1,12 @@
-import Promise from 'bluebird';
 import newDebug from 'debug';
+import { promisifyAll, nodeify } from '../_promise.js';
 
-import broadcastHelpers from './helpers';
-import formatterFactory from '../formatter';
-import operations from './operations';
-import steemApi from '../api';
-import steemAuth from '../auth';
-import { camelCase } from '../utils';
+import broadcastHelpers from './helpers.js';
+import formatterFactory from '../formatter.js';
+import operations from './operations.js';
+import steemApi from '../api/index.js';
+import steemAuth from '../auth/index.js';
+import { camelCase } from '../utils.js';
 
 const debug = newDebug('steem:broadcast');
 const noop = function() {}
@@ -30,12 +30,12 @@ steemBroadcast.send = function steemBroadcast$send(tx, privKeys, callback) {
         'Signing transaction (transaction, transaction.operations)',
         transaction, transaction.operations
       );
-      return Promise.join(
+      return Promise.all([
         transaction,
         steemAuth.signTransaction(transaction, privKeys)
-      );
+      ]);
     })
-    .spread((transaction, signedTransaction) => {
+    .then(([transaction, signedTransaction]) => {
       debug(
         'Broadcasting transaction (transaction, transaction.operations)',
         transaction, transaction.operations
@@ -47,12 +47,7 @@ steemBroadcast.send = function steemBroadcast$send(tx, privKeys, callback) {
       });
     });
 
-  if (callback) {
-    resultP.nodeify(callback);
-    return undefined;
-  } else {
-    return resultP;
-  }
+  return nodeify(resultP, callback);
 };
 
 steemBroadcast._prepareTransaction = function steemBroadcast$_prepareTransaction(tx) {
@@ -129,6 +124,6 @@ const toString = obj => typeof obj === 'object' ? JSON.stringify(obj) : obj;
 broadcastHelpers(steemBroadcast);
 
 // For backwards compatibility, maintain the Async versions
-Promise.promisifyAll(steemBroadcast);
+promisifyAll(steemBroadcast);
 
-exports = module.exports = steemBroadcast;
+export default steemBroadcast;

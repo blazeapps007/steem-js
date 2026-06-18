@@ -1,7 +1,13 @@
-var ByteBuffer = require('bytebuffer');
+var ByteBuffer = require('./bytebuffer-lite.js');
 var EC = require('./error_with_cause');
 
-const HEX_DUMP = process.env.npm_config__graphene_serializer_hex_dump
+// Optional debug flag. Reading process.env can throw on permission-restricted
+// runtimes (e.g. Deno without --allow-env), so swallow any access error.
+let HEX_DUMP;
+try {
+    if (typeof process !== 'undefined' && process.env)
+        HEX_DUMP = process.env.npm_config__graphene_serializer_hex_dump;
+} catch (e) { /* env not accessible — debug dump stays off */ }
 
 class Serializer {
 

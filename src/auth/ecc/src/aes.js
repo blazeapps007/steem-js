@@ -1,155 +1,100 @@
-const secureRandom = require('secure-random');
-const ByteBuffer = require('bytebuffer');
-const crypto = require('browserify-aes');
-const assert = require('assert');
-const PublicKey = require('./key_public');
-const PrivateKey = require('./key_private');
-const hash = require('./hash');
+// Memo AES-256-CBC on @noble/ciphers (pure JS, isomorphic). Byte-compatible with the
+// previous browserify-aes/bytebuffer implementation; validated by the memo golden vector.
+import { cbc } from '@noble/ciphers/aes.js';
+import { randomBytes } from '@noble/hashes/utils.js';
+import assert from 'assert';
+import PublicKey from './key_public.js';
+import PrivateKey from './key_private.js';
+import hash from './hash.js';
 
-const Long = ByteBuffer.Long;
+function u64leBuffer(bigintVal) {
+  const b = Buffer.alloc(8);
+  b.writeBigUInt64LE(BigInt.asUintN(64, bigintVal));
+  return b;
+}
 
-/**
-    Spec: http://localhost:3002/steem/@dantheman/how-to-encrypt-a-memo-when-transferring-steem
-    @throws {Error|TypeError} - "Invalid Key, ..."
-    @arg {PrivateKey} private_key - required and used for decryption
-    @arg {PublicKey} public_key - required and used to calculate the shared secret
-    @arg {string} [nonce = uniqueNonce()] - assigned a random unique uint64
-
-    @return {object}
-    @property {string} nonce - random or unique uint64, provides entropy when re-using the same private/public keys.
-    @property {Buffer} message - Plain text message
-    @property {number} checksum - shared secret checksum
-*/
-function encrypt(private_key, public_key, message, nonce = uniqueNonce()) {
-    return crypt(private_key, public_key, nonce, message)
+function toBigIntNonce(n) {
+  if (n == null) return null;
+  if (typeof n === 'bigint') return n;
+  // string | number | bytebuffer Long (has .toString)
+  return BigInt(typeof n === 'object' && typeof n.toString === 'function' ? n.toString() : n);
 }
 
 /**
-    Spec: http://localhost:3002/steem/@dantheman/how-to-encrypt-a-memo-when-transferring-steem
-    @arg {PrivateKey} private_key - required and used for decryption
-    @arg {PublicKey} public_key - required and used to calculate the shared secret
-    @arg {string} nonce - random or unique uint64, provides entropy when re-using the same private/public keys.
-    @arg {Buffer} message - Encrypted or plain text message
-    @arg {number} checksum - shared secret checksum
-    @throws {Error|TypeError} - "Invalid Key, ..."
-    @return {Buffer} - message
+    @arg {PrivateKey} private_key - used to calculate the shared secret
+    @arg {PublicKey} public_key - used to calculate the shared secret
+    @arg {string} [nonce] - random/unique uint64 (as a decimal string)
+    @return {{nonce: string, message: Buffer, checksum: number}}
 */
-function decrypt(private_key, public_key, nonce, message, checksum) {
-    return crypt(private_key, public_key, nonce, message, checksum).message
+export function encrypt(private_key, public_key, message, nonce = uniqueNonce()) {
+  return crypt(private_key, public_key, nonce, message);
 }
 
-/**
-    @arg {Buffer} message - Encrypted or plain text message (see checksum)
-    @arg {number} checksum - shared secret checksum (null to encrypt, non-null to decrypt)
-*/
+/** @return {Buffer} decrypted message */
+export function decrypt(private_key, public_key, nonce, message, checksum) {
+  return crypt(private_key, public_key, nonce, message, checksum).message;
+}
+
 function crypt(private_key, public_key, nonce, message, checksum) {
-    private_key = toPrivateObj(private_key)
-    if (!private_key)
-        throw new TypeError('private_key is required')
+  private_key = toPrivateObj(private_key);
+  if (!private_key) throw new TypeError('private_key is required');
 
-    public_key = toPublicObj(public_key)
-    if (!public_key)
-        throw new TypeError('public_key is required')
+  public_key = toPublicObj(public_key);
+  if (!public_key) throw new TypeError('public_key is required');
 
-    nonce = toLongObj(nonce)
-    if (!nonce)
-        throw new TypeError('nonce is required')
+  const nonceBig = toBigIntNonce(nonce);
+  if (nonceBig == null) throw new TypeError('nonce is required');
 
-    if (!Buffer.isBuffer(message)) {
-        if (typeof message !== 'string')
-            throw new TypeError('message should be buffer or string')
-        message = new Buffer.from(message, 'binary')
-    }
-    if (checksum && typeof checksum !== 'number')
-        throw new TypeError('checksum should be a number')
+  if (!Buffer.isBuffer(message)) {
+    if (typeof message !== 'string') throw new TypeError('message should be buffer or string');
+    message = Buffer.from(message, 'binary');
+  }
+  if (checksum && typeof checksum !== 'number') throw new TypeError('checksum should be a number');
 
-    const S = private_key.get_shared_secret(public_key);
-    let ebuf = new ByteBuffer(ByteBuffer.DEFAULT_CAPACITY, ByteBuffer.LITTLE_ENDIAN)
-    ebuf.writeUint64(nonce)
-    ebuf.append(S.toString('binary'), 'binary')
-    ebuf = new Buffer.from(ebuf.copy(0, ebuf.offset).toBinary(), 'binary')
-    const encryption_key = hash.sha512(ebuf)
+  const S = private_key.get_shared_secret(public_key); // Buffer (sha512, 64 bytes)
+  const ebuf = Buffer.concat([u64leBuffer(nonceBig), Buffer.from(S)]);
+  const encryption_key = hash.sha512(ebuf); // Buffer (64 bytes)
 
-    // D E B U G
-    // console.log('crypt', {
-    //     priv_to_pub: private_key.toPublicKey().toString(),
-    //     pub: public_key.toString(),
-    //     nonce: nonce.toString(),
-    //     message: message.length,
-    //     checksum,
-    //     S: S.toString('hex'),
-    //     encryption_key: encryption_key.toString('hex'),
-    // })
+  const iv = encryption_key.slice(32, 48);
+  const key = encryption_key.slice(0, 32);
 
-    const iv = encryption_key.slice(32, 48)
-    const key = encryption_key.slice(0, 32)
+  // check = first 32 bits (LE) of sha256(encryption_key)
+  let check = hash.sha256(encryption_key).slice(0, 4).readUInt32LE(0);
 
-    // check is first 64 bit of sha256 hash treated as uint64_t truncated to 32 bits.
-    let check = hash.sha256(encryption_key)
-    check = check.slice(0, 4)
-    const cbuf = ByteBuffer.fromBinary(check.toString('binary'), ByteBuffer.DEFAULT_CAPACITY, ByteBuffer.LITTLE_ENDIAN)
-    check = cbuf.readUint32()
-
-    if (checksum) {
-        if (check !== checksum)
-            throw new Error('Invalid key')
-        message = cryptoJsDecrypt(message, key, iv)
-    } else {
-        message = cryptoJsEncrypt(message, key, iv)
-    }
-    return {nonce, message, checksum: check}
+  if (checksum) {
+    if (check !== checksum) throw new Error('Invalid key');
+    message = aesDecrypt(message, key, iv);
+  } else {
+    message = aesEncrypt(message, key, iv);
+  }
+  return { nonce: nonceBig.toString(), message, checksum: check };
 }
 
-/** This method does not use a checksum, the returned data must be validated some other way.
-    @arg {string|Buffer} ciphertext - binary format
-    @return {Buffer}
-*/
-function cryptoJsDecrypt(message, key, iv) {
-    assert(message, "Missing cipher text")
-    message = toBinaryBuffer(message)
-    const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv)
-    // decipher.setAutoPadding(true)
-    message = Buffer.concat([decipher.update(message), decipher.final()])
-    return message
+function aesEncrypt(message, key, iv) {
+  assert(message, 'Missing plain text');
+  const ct = cbc(Uint8Array.from(key), Uint8Array.from(iv)).encrypt(Uint8Array.from(message));
+  return Buffer.from(ct);
 }
 
-/** This method does not use a checksum, the returned data must be validated some other way.
-    @arg {string|Buffer} plaintext - binary format
-    @return {Buffer} binary
-*/
-function cryptoJsEncrypt(message, key, iv) {
-    assert(message, "Missing plain text")
-    message = toBinaryBuffer(message)
-    const cipher = crypto.createCipheriv('aes-256-cbc', key, iv)
-    // cipher.setAutoPadding(true)
-    message = Buffer.concat([cipher.update(message), cipher.final()])
-    return message
+function aesDecrypt(message, key, iv) {
+  assert(message, 'Missing cipher text');
+  const pt = cbc(Uint8Array.from(key), Uint8Array.from(iv)).decrypt(Uint8Array.from(message));
+  return Buffer.from(pt);
 }
 
-/** @return {string} unique 64 bit unsigned number string.  Being time based, this is careful to never choose the same nonce twice.  This value could be recorded in the blockchain for a long time.
-*/
+/** @return {string} unique 64-bit unsigned number as a decimal string. */
+let unique_nonce_entropy = null;
 function uniqueNonce() {
-    if(unique_nonce_entropy === null) {
-        const b = secureRandom.randomUint8Array(2)
-        unique_nonce_entropy = parseInt(b[0] << 8 | b[1], 10)
-    }
-    let long = Long.fromNumber(Date.now())
-    const entropy = ++unique_nonce_entropy % 0xFFFF
-    // console.log('uniqueNonce date\t', ByteBuffer.allocate(8).writeUint64(long).toHex(0))
-    // console.log('uniqueNonce entropy\t', ByteBuffer.allocate(8).writeUint64(Long.fromNumber(entropy)).toHex(0))
-    long = long.shiftLeft(16).or(Long.fromNumber(entropy));
-    // console.log('uniqueNonce final\t', ByteBuffer.allocate(8).writeUint64(long).toHex(0))
-    return long.toString()
+  if (unique_nonce_entropy === null) {
+    const b = randomBytes(2);
+    unique_nonce_entropy = parseInt((b[0] << 8) | b[1], 10);
+  }
+  const entropy = (++unique_nonce_entropy) % 0xffff;
+  const long = (BigInt(Date.now()) << 16n) | BigInt(entropy);
+  return long.toString();
 }
-let unique_nonce_entropy = null
-// for(let i=1; i < 10; i++) key.uniqueNonce()
 
-const toPrivateObj = o => (o ? o.d ? o : PrivateKey.fromWif(o) : o/*null or undefined*/)
-const toPublicObj = o => (o ? o.Q ? o : PublicKey.fromString(o) : o/*null or undefined*/)
-const toLongObj = o => (o ? Long.isLong(o) ? o : Long.fromString(o) : o)
-const toBinaryBuffer = o => (o ? Buffer.isBuffer(o) ? o : new Buffer.from(o, 'binary') : o)
+const toPrivateObj = o => (o ? (o.d ? o : PrivateKey.fromWif(o)) : o);
+const toPublicObj = o => (o ? (o.Q ? o : PublicKey.fromString(o)) : o);
 
-module.exports = {
-    encrypt,
-    decrypt
-}
+export default { encrypt, decrypt };

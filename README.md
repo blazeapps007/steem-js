@@ -6,30 +6,16 @@ Steem.js the JavaScript API for Steem blockchain
 
 # Documentation
 
-- [Install](https://github.com/steemit/steem-js/tree/master/doc#install)
-- [Browser](https://github.com/steemit/steem-js/tree/master/doc#browser)
-- [Config](https://github.com/steemit/steem-js/tree/master/doc#config)
-- [Database API](https://github.com/steemit/steem-js/tree/master/doc#api)
-    - [Subscriptions](https://github.com/steemit/steem-js/tree/master/doc#subscriptions)
-    - [Tags](https://github.com/steemit/steem-js/tree/master/doc#tags)
-    - [Blocks and transactions](https://github.com/steemit/steem-js/tree/master/doc#blocks-and-transactions)
-    - [Globals](https://github.com/steemit/steem-js/tree/master/doc#globals)
-    - [Keys](https://github.com/steemit/steem-js/tree/master/doc#keys)
-    - [Accounts](https://github.com/steemit/steem-js/tree/master/doc#accounts)
-    - [Market](https://github.com/steemit/steem-js/tree/master/doc#market)
-    - [Authority / validation](https://github.com/steemit/steem-js/tree/master/doc#authority--validation)
-    - [Votes](https://github.com/steemit/steem-js/tree/master/doc#votes)
-    - [Content](https://github.com/steemit/steem-js/tree/master/doc#content)
-    - [Witnesses](https://github.com/steemit/steem-js/tree/master/doc#witnesses)
-- [Login API](https://github.com/steemit/steem-js/tree/master/doc#login)
-- [Follow API](https://github.com/steemit/steem-js/tree/master/doc#follow-api)
-- [Broadcast API](https://github.com/steemit/steem-js/tree/master/doc#broadcast-api)
-- [Broadcast](https://github.com/steemit/steem-js/tree/master/doc#broadcast)
-- [Auth](https://github.com/steemit/steem-js/tree/master/doc#auth)
+📖 **Full documentation: <https://blazeapps007.github.io/steem-js/>**
 
+The site covers 100% of the library. The API and Broadcast references are generated from the
+library source, so they always list every method in the installed version.
 
-Here is full documentation:
-https://github.com/steemit/steem-js/tree/master/doc
+- [Guide](https://blazeapps007.github.io/steem-js/guide/) — install, configuration, broadcasting, streaming, auth, memo, formatter, utils
+- [API reference (`steem.api`)](https://blazeapps007.github.io/steem-js/reference/api)
+- [Broadcast reference (`steem.broadcast`)](https://blazeapps007.github.io/steem-js/reference/broadcast)
+
+Docs sources live in [`/docs`](docs); regenerate the reference with `npm run docs:generate`.
 
 ## Browser
 ```html
@@ -42,9 +28,9 @@ steem.api.getAccounts(['ned', 'dan'], function(err, response){
 ```
 
 ## CDN
-https://cdn.jsdelivr.net/npm/steem/dist/steem.min.js<br/>
+https://cdn.jsdelivr.net/npm/@blazeapps/steem/dist/steem.min.js<br/>
 ```html
-<script src="https://cdn.jsdelivr.net/npm/steem/dist/steem.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@blazeapps/steem/dist/steem.min.js"></script>
 ```
 
 ## Webpack
@@ -53,7 +39,7 @@ https://cdn.jsdelivr.net/npm/steem/dist/steem.min.js<br/>
 ## Server
 ## Install
 ```
-$ npm install steem --save
+$ npm install @blazeapps/steem --save
 ```
 
 ## RPC Servers
@@ -62,7 +48,7 @@ https://api.steemit.com By Default<br/>
 ## Examples
 ### Broadcast Vote
 ```js
-var steem = require('steem');
+var steem = require('@blazeapps/steem');
 
 var wif = steem.auth.toWif(username, password, 'posting');
 steem.broadcast.vote(wif, voter, author, permlink, weight, function(err, result) {
@@ -72,7 +58,7 @@ steem.broadcast.vote(wif, voter, author, permlink, weight, function(err, result)
 
 ### Broadcast Vote with Promises
 ```js
-var steem = require('steem');
+var steem = require('@blazeapps/steem');
 
 var wif = steem.auth.toWif(username, password, 'posting');
 // Using Promises

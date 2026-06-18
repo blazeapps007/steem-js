@@ -17,7 +17,13 @@ const Config = require("../../../config.js");
 const Types = {};
 module.exports = Types;
 
-const HEX_DUMP = process.env.npm_config__graphene_serializer_hex_dump
+// Optional debug flag. Reading process.env can throw on permission-restricted
+// runtimes (e.g. Deno without --allow-env), so swallow any access error.
+let HEX_DUMP;
+try {
+    if (typeof process !== 'undefined' && process.env)
+        HEX_DUMP = process.env.npm_config__graphene_serializer_hex_dump;
+} catch (e) { /* env not accessible — debug dump stays off */ }
 
 // Highly optimized implementation of Damm algorithm
 // https://en.wikipedia.org/wiki/Damm_algorithm

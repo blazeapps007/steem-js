@@ -1,19 +1,22 @@
-import Promise from 'bluebird';
-import isNode from 'detect-node';
 import newDebug from 'debug';
 
-import Transport from './base';
-
-let WebSocket;
-if (isNode) {
-  WebSocket = require('ws'); // eslint-disable-line global-require
-} else if (typeof window !== 'undefined') {
-  WebSocket = window.WebSocket;
-} else {
-  throw new Error("Couldn't decide on a `WebSocket` class");
-}
+import Transport from './base.js';
 
 const debug = newDebug('steem:ws');
+
+// Resolve a WebSocket implementation isomorphically: prefer the global one
+// (browsers, edge runtimes, Deno, Node 22+), else lazily load the optional `ws` package.
+async function resolveWebSocket() {
+  if (typeof globalThis !== 'undefined' && globalThis.WebSocket) {
+    return globalThis.WebSocket;
+  }
+  try {
+    const mod = await import('ws');
+    return mod.default || mod;
+  } catch (e) {
+    throw new Error("Couldn't load a `WebSocket` implementation. Install `ws` or use HTTP transport.");
+  }
+}
 
 export default class WsTransport extends Transport {
   constructor(options = {}) {
@@ -25,12 +28,11 @@ export default class WsTransport extends Transport {
   }
 
   start() {
-
     if (this.startPromise) {
       return this.startPromise;
     }
 
-    this.startPromise = new Promise((resolve, reject) => {
+    this.startPromise = resolveWebSocket().then((WebSocket) => new Promise((resolve, reject) => {
       this.ws = new WebSocket(this.options.websocket);
       this.ws.onerror = (err) => {
         this.startPromise = null;
@@ -43,7 +45,7 @@ export default class WsTransport extends Transport {
         this.ws.onclose = this.onClose.bind(this);
         resolve();
       };
-    });
+    }));
     return this.startPromise;
   }
 
@@ -124,7 +126,6 @@ export default class WsTransport extends Transport {
     const errorCause = message.error;
     if (errorCause) {
       const err = new Error(
-        // eslint-disable-next-line prefer-template
         (errorCause.message || 'Failed to complete operation') +
           ' (see err.payload for the full error payload)'
       );
@@ -134,6 +135,5 @@ export default class WsTransport extends Transport {
       this.emit('track-performance', _request.message.method, Date.now() - _request.startedAt);
       _request.deferral.resolve(message.result);
     }
-
   }
 }

@@ -1,6 +1,6 @@
-import api from '../api';
+import api from '../api/index.js';
 
-exports = module.exports = steemBroadcast => {
+export default steemBroadcast => {
   steemBroadcast.addAccountAuth = ({ signingKey, username, authorizedUsername, role = 'posting', weight }, cb) => {
     api.getAccounts([username], (err, [userAccount]) => {
       if (err) { return cb(new Error(err), null); }

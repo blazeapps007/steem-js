@@ -1,23 +1,23 @@
 import EventEmitter from 'events';
-import Promise from 'bluebird';
-import config from '../config';
-import methods from './methods';
-import transports from './transports';
+import { promisify, delay } from '../_promise.js';
+import config from '../config.js';
+import methods from './methods.js';
+import transports from './transports/index.js';
 import {
     camelCase
-} from '../utils';
+} from '../utils.js';
 import {
     hash
-} from '../auth/ecc';
+} from '../auth/ecc/index.js';
 import {
     ops
-} from '../auth/serializer';
+} from '../auth/serializer/index.js';
 import {
     jsonRpc
-} from './transports/http';
+} from './transports/http.js';
 import {
     sign as signRequest
-} from './rpc-auth';
+} from './rpc-auth.js';
 
 class Steem extends EventEmitter {
     constructor(options = {}) {
@@ -52,11 +52,11 @@ class Steem extends EventEmitter {
                 return this[`${methodName}With`](options, callback);
             };
 
-            this[`${methodName}WithAsync`] = Promise.promisify(this[`${methodName}With`]);
-            this[`${methodName}Async`] = Promise.promisify(this[methodName]);
+            this[`${methodName}WithAsync`] = promisify(this[`${methodName}With`]);
+            this[`${methodName}Async`] = promisify(this[methodName]);
         });
-        this.callAsync = Promise.promisify(this.call);
-        this.signedCallAsync = Promise.promisify(this.signedCall);
+        this.callAsync = promisify(this.call);
+        this.signedCallAsync = promisify(this.signedCall);
     }
 
     _setTransport(options) {
@@ -236,7 +236,7 @@ class Steem extends EventEmitter {
                         }
                     }
 
-                    Promise.delay(ts).then(() => {
+                    delay(ts).then(() => {
                         update();
                     });
                 },
@@ -352,7 +352,8 @@ class Steem extends EventEmitter {
     }
 }
 
-// Export singleton instance
+// Export singleton instance (with the class attached for back-compat: steem.api.Steem)
 const steem = new Steem(config);
-exports = module.exports = steem;
-exports.Steem = Steem;
+steem.Steem = Steem;
+export default steem;
+export { Steem };
